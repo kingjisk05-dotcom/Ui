@@ -7,9 +7,8 @@
 
 <style>
 :root{
-  --glass: rgba(0,0,0,0.45);
-  --blur: blur(14px);
-  --accent: #00ffd5;
+  --neon:#00ffd5;
+  --glass:rgba(0,0,0,.45);
 }
 
 *{box-sizing:border-box}
@@ -17,23 +16,22 @@
 body{
   margin:0;
   height:100vh;
-  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  font-family:system-ui, sans-serif;
   background:
-    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.75)),
+    linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)),
     url("wall.jpg") center/cover no-repeat;
   color:#fff;
 }
 
-/* ===== LAYOUT ===== */
 .container{
   height:100%;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  padding:20px;
+  padding:18px;
 }
 
-/* ===== TOP BAR ===== */
+/* TOP */
 .top{
   display:flex;
   justify-content:space-between;
@@ -41,25 +39,24 @@ body{
 }
 
 .weather{
-  background:var(--glass);
-  backdrop-filter:var(--blur);
-  padding:8px 14px;
+  padding:6px 14px;
   border-radius:20px;
+  background:var(--glass);
+  backdrop-filter:blur(10px);
   font-size:14px;
 }
 
-/* ===== CLOCK ===== */
+/* CLOCK */
 .clock{
   text-align:center;
   margin-top:40px;
 }
 
 #time{
-  font-size:52px;
-  font-weight:600;
-  letter-spacing:2px;
-  color:var(--accent);
-  text-shadow:0 0 25px rgba(0,255,210,.7);
+  font-size:56px;
+  font-weight:700;
+  color:var(--neon);
+  text-shadow:0 0 25px var(--neon);
 }
 
 #date{
@@ -67,54 +64,35 @@ body{
   margin-top:6px;
 }
 
-/* ===== SEARCH ===== */
+/* SEARCH */
 .search{
-  margin:35px auto 0;
+  margin:30px auto 0;
   width:100%;
   max-width:380px;
 }
 
-.rgb-wrapper{
-  position:relative;
-  background:var(--glass);
-  backdrop-filter:var(--blur);
-  border-radius:16px;
-  padding:15px;
-}
-
-.real-input{
+.search input{
   width:100%;
-  background:transparent;
+  padding:16px;
   border:none;
   outline:none;
-  color:transparent;
-  caret-color:var(--accent);
-  font-size:16px;
-  position:relative;
-  z-index:2;
+  border-radius:18px;
+  background:var(--glass);
+  backdrop-filter:blur(12px);
+  font-size:17px;
+  color:white;
+  caret-color:#00ffd5;
 
-  /* keyboard fix */
-  inputmode:text;
+  /* 🔑 KEYBOARD FIX */
+  -webkit-text-security:none;
 }
 
-.rgb-text{
-  position:absolute;
-  top:50%;
-  left:15px;
-  transform:translateY(-50%);
-  display:flex;
-  gap:1px;
-  pointer-events:none;
-  font-size:16px;
-  white-space:nowrap;
-}
-
-/* ===== FOOTER ===== */
+/* FOOTER */
 .footer{
   text-align:center;
   font-size:12px;
   opacity:.6;
-  margin-bottom:8px;
+  margin-bottom:10px;
 }
 </style>
 </head>
@@ -123,69 +101,53 @@ body{
 
 <div class="container">
 
-  <!-- TOP -->
   <div class="top">
     <div class="weather">☁ 11°C</div>
     <div>⚙</div>
   </div>
 
-  <!-- CLOCK -->
   <div class="clock">
     <div id="time">00:00</div>
     <div id="date">Loading...</div>
   </div>
 
-  <!-- SEARCH -->
   <div class="search">
-    <div class="rgb-wrapper">
-      <div id="rgbInput" class="rgb-text"></div>
-      <input
-        id="realInput"
-        class="real-input"
-        type="text"
-        placeholder="Search Google..."
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="none"
-        spellcheck="false">
-    </div>
+    <input id="search"
+      type="search"
+      inputmode="search"
+      autocomplete="off"
+      placeholder="Search Google…">
   </div>
 
-  <div class="footer">⚡ Focus Home • Minimal • Offline</div>
+  <div class="footer">⚡ Focus Home • Offline • Clean</div>
 
 </div>
 
 <script>
-/* ===== CLOCK ===== */
+/* CLOCK */
 function updateClock(){
   const d=new Date();
-  document.getElementById('time').innerText =
-    d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  document.getElementById('date').innerText =
-    d.toDateString();
-}
-setInterval(updateClock,1000);
-updateClock();
-
-/* ===== RGB SEARCH TEXT ===== */
-const input = document.getElementById('realInput');
-const rgb = document.getElementById('rgbInput');
-
-input.addEventListener('input', () => {
-  rgb.innerHTML = '';
-  [...input.value].forEach(ch => {
-    const span = document.createElement('span');
-    span.textContent = ch;
-    span.style.color = `hsl(${Math.random()*360},100%,65%)`;
-    rgb.appendChild(span);
+  time.textContent=d.toLocaleTimeString([],{
+    hour:'2-digit',minute:'2-digit'
   });
+  date.textContent=d.toDateString();
+}
+setInterval(updateClock,1000);updateClock();
+
+/* RGB TYPING INSIDE INPUT */
+const input=document.getElementById("search");
+
+input.addEventListener("input",()=>{
+  const hue=Math.floor(Math.random()*360);
+  input.style.color=`hsl(${hue},100%,70%)`;
+  input.style.textShadow=`0 0 10px hsl(${hue},100%,70%)`;
 });
 
-/* ===== GOOGLE SEARCH ===== */
-input.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    location.href =
-      'https://www.google.com/search?q=' +
+/* SEARCH */
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    location.href=
+      "https://www.google.com/search?q="+
       encodeURIComponent(input.value);
   }
 });
