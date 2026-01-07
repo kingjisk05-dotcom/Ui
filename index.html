@@ -5,22 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shishupal Home UI</title>
 
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
 <style>
+/* ================= USER EDIT ZONE ================= */
 :root{
   --neon:#00ffd5;
   --glass:rgba(0,0,0,.38);
 }
+/* ================================================= */
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+}
 
+input,textarea{
+  -webkit-user-select:text;
+  user-select:text;
+}
+
+/* ================= BODY ================= */
 body{
   margin:0;
-  height:100vh;
+  min-height:100vh;
   font-family:system-ui, sans-serif;
-  background:url("wall.jpg") center/cover no-repeat;
+
+  background-image:url("wall.jpg");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+
   color:#fff;
 }
 
+/* ================= LAYOUT ================= */
 .container{
   height:100%;
   display:flex;
@@ -29,7 +53,7 @@ body{
   padding:18px;
 }
 
-/* ---------- TOP ---------- */
+/* ================= TOP ================= */
 .top{
   display:flex;
   justify-content:space-between;
@@ -44,31 +68,38 @@ body{
   font-size:14px;
 }
 
-/* ---------- CLOCK ---------- */
-.clock{
-  text-align:center;
-  margin-top:40px;
+/* ================= SETTINGS ================= */
+#settingsBtn{
+  font-size:20px;
+  cursor:pointer;
+  opacity:.85;
+}
+#settingsBtn:active{transform:scale(.9)}
+
+/* ================= DRAGGABLE ================= */
+.draggable{
+  position:fixed;
+  touch-action:none;
+  cursor:grab;
+  z-index:999;
 }
 
+/* ================= CLOCK ================= */
+.clock{text-align:center;margin-top:40px}
 #time{
   font-size:56px;
   font-weight:700;
   color:var(--neon);
   text-shadow:0 0 25px var(--neon);
 }
+#date{opacity:.7;margin-top:6px}
 
-#date{
-  opacity:.7;
-  margin-top:6px;
-}
-
-/* ---------- SEARCH ---------- */
+/* ================= SEARCH ================= */
 .search{
   margin:30px auto 0;
   width:100%;
   max-width:380px;
 }
-
 .search input{
   width:100%;
   padding:16px;
@@ -83,15 +114,7 @@ body{
   -webkit-text-security:none;
 }
 
-/* ---------- DRAG SUPPORT ---------- */
-.draggable{
-  position:fixed;
-  touch-action:none;
-  cursor:grab;
-  z-index:999;
-}
-
-/* ---------- FOOTER ---------- */
+/* ================= FOOTER ================= */
 .footer{
   text-align:center;
   font-size:12px;
@@ -103,12 +126,15 @@ body{
 
 <body>
 
-<div class="container">
+<!-- SETTINGS -->
+<div class="top">
+  <div class="weather" id="weather">⛅ Loading…</div>
+  <div id="settingsBtn">⚙</div>
+</div>
 
-  <div class="top">
-    <div class="weather" id="weather">⛅ Loading…</div>
-    <div>⚙</div>
-  </div>
+<input type="file" id="wallPicker" accept="image/*" hidden>
+
+<div class="container">
 
   <!-- CLOCK -->
   <div class="clock draggable" id="clock">
@@ -122,6 +148,9 @@ body{
       type="search"
       inputmode="search"
       autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
       placeholder="Search Google…">
   </div>
 
@@ -138,21 +167,17 @@ function updateClock(){
   });
   date.textContent=d.toDateString();
 }
-setInterval(updateClock,1000);
-updateClock();
+setInterval(updateClock,1000);updateClock();
 
 /* ================= RGB TYPING ================= */
 const input=document.getElementById("search");
 let lastType=Date.now();
-
 input.addEventListener("input",()=>{
   const now=Date.now();
-  const speed=Math.min(300, now-lastType);
+  const speed=Math.min(300,now-lastType);
   lastType=now;
-
   const hue=Math.floor(Math.random()*360);
-  const glow=Math.max(6, 30 - speed/10);
-
+  const glow=Math.max(6,30-speed/10);
   input.style.color=`hsl(${hue},100%,70%)`;
   input.style.textShadow=`0 0 ${glow}px hsl(${hue},100%,70%)`;
 });
@@ -160,93 +185,78 @@ input.addEventListener("input",()=>{
 /* ================= SEARCH ================= */
 input.addEventListener("keydown",e=>{
   if(e.key==="Enter"){
-    location.href=
-      "https://www.google.com/search?q="+
-      encodeURIComponent(input.value);
+    location.href="https://www.google.com/search?q="+encodeURIComponent(input.value);
   }
 });
 
 /* ================= WEATHER ================= */
 const API_KEY="f1f5a371042922700734867c52f50526";
-const CITY="Yamunanagar";
-const COUNTRY="IN";
-
 async function loadWeather(){
   try{
-    const res=await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${CITY},${COUNTRY}&units=metric&appid=${API_KEY}`
-    );
-    const data=await res.json();
-    weather.textContent=
-      `⛅ ${Math.round(data.main.temp)}°C • ${CITY}`;
-  }catch{
-    weather.textContent="Weather offline";
-  }
+    const r=await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Yamunanagar,IN&units=metric&appid=${API_KEY}`);
+    const d=await r.json();
+    weather.textContent=`⛅ ${Math.round(d.main.temp)}°C • Yamunanagar`;
+  }catch{weather.textContent="Weather offline";}
 }
-loadWeather();
-setInterval(loadWeather,10*60*1000);
+loadWeather();setInterval(loadWeather,600000);
 
-/* ================= DRAG ENGINE ================= */
-function makeDraggable(el, key){
-  const saved = JSON.parse(localStorage.getItem(key));
-  if(saved){
-    el.style.left = saved.x + "px";
-    el.style.top  = saved.y + "px";
-  }
+/* ================= DRAG ENGINE (DOUBLE TAP) ================= */
+function makeDraggable(el,key){
+  const p=JSON.parse(localStorage.getItem(key));
+  if(p){el.style.left=p.x+"px";el.style.top=p.y+"px";}
+  let enabled=false,lastTap=0,sx,sy,ix,iy;
 
-  let enabled = false;
-  let tapTimer = 0;
-  let sx, sy, ix, iy;
-
-  /* ===== DOUBLE TAP DETECT ===== */
-  el.addEventListener("pointerdown", e => {
-    const now = Date.now();
-    if(now - tapTimer < 300){
-      enabled = !enabled;
-
-      el.style.boxShadow = enabled
-        ? "0 0 25px rgba(0,255,213,.9)"
-        : "none";
+  el.addEventListener("pointerdown",e=>{
+    const now=Date.now();
+    if(now-lastTap<300){
+      enabled=!enabled;
+      el.style.boxShadow=enabled?"0 0 25px rgba(0,255,213,.9)":"none";
     }
-    tapTimer = now;
-
-    if(!enabled) return;
-
-    sx = e.clientX;
-    sy = e.clientY;
-    ix = el.offsetLeft;
-    iy = el.offsetTop;
+    lastTap=now;
+    if(!enabled)return;
+    sx=e.clientX;sy=e.clientY;
+    ix=el.offsetLeft;iy=el.offsetTop;
     el.setPointerCapture(e.pointerId);
-    el.style.cursor = "grabbing";
   });
 
-  /* ===== DRAG MOVE ===== */
-  el.addEventListener("pointermove", e => {
-    if(!enabled || sx == null) return;
-
-    el.style.left = ix + (e.clientX - sx) + "px";
-    el.style.top  = iy + (e.clientY - sy) + "px";
+  el.addEventListener("pointermove",e=>{
+    if(!enabled)return;
+    el.style.left=ix+(e.clientX-sx)+"px";
+    el.style.top=iy+(e.clientY-sy)+"px";
   });
 
-  /* ===== RELEASE ===== */
-  el.addEventListener("pointerup", () => {
-    if(!enabled) return;
-
-    localStorage.setItem(key, JSON.stringify({
-      x: el.offsetLeft,
-      y: el.offsetTop
-    }));
-
-    sx = null;
-    el.style.cursor = "grab";
-    el.style.boxShadow = "none";
-    enabled = false; // auto lock again
+  el.addEventListener("pointerup",()=>{
+    if(!enabled)return;
+    localStorage.setItem(key,JSON.stringify({x:el.offsetLeft,y:el.offsetTop}));
+    el.style.boxShadow="none";
+    enabled=false;
   });
 }
+makeDraggable(clock,"pos_clock");
+makeDraggable(searchBox,"pos_search");
 
-/* APPLY */
-makeDraggable(clock, "pos_clock");
-makeDraggable(searchBox, "pos_search");
+/* ================= WALLPAPER PICKER ================= */
+const savedWall=localStorage.getItem("userWallpaper");
+if(savedWall)document.body.style.backgroundImage=`url(${savedWall})`;
+
+settingsBtn.onclick=()=>wallPicker.click();
+wallPicker.onchange=e=>{
+  const f=e.target.files[0];
+  if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    localStorage.setItem("userWallpaper",r.result);
+    document.body.style.backgroundImage=`url(${r.result})`;
+  };
+  r.readAsDataURL(f);
+};
+
+/* ================= BLOCK COPY / MENU ================= */
+document.addEventListener("contextmenu",e=>e.preventDefault());
+["copy","cut","paste"].forEach(x=>document.addEventListener(x,e=>e.preventDefault()));
+document.addEventListener("selectstart",e=>{
+  if(!e.target.closest("input"))e.preventDefault();
+});
 </script>
 
 </body>
