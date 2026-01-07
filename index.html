@@ -5,179 +5,153 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Focus Home Pro</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
-/* ========== THEME ========== */
 :root{
-  --glass: rgba(0,0,0,.45);
-  --blur: blur(14px);
+  --neon:#00ffd5;
+  --glass:rgba(0,0,0,.45);
 }
 
-/* ========== BASE ========== */
 *{box-sizing:border-box}
+
 body{
   margin:0;
   height:100vh;
-  font-family:Poppins,sans-serif;
+  font-family:system-ui, sans-serif;
   background:
-    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.75)),
+    linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)),
     url("wall.jpg") center/cover no-repeat;
   color:#fff;
 }
 
-/* ========== LAYOUT ========== */
 .container{
   height:100%;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  padding:20px;
+  padding:18px;
 }
 
-/* ========== TOP ========== */
+/* TOP */
 .top{
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
+
 .weather{
-  background:var(--glass);
-  backdrop-filter:var(--blur);
-  padding:8px 14px;
+  padding:6px 14px;
   border-radius:20px;
+  background:var(--glass);
+  backdrop-filter:blur(10px);
   font-size:14px;
 }
 
-/* ========== CLOCK ========== */
+/* CLOCK */
 .clock{
   text-align:center;
   margin-top:40px;
 }
+
 #time{
-  font-size:52px;
-  font-weight:600;
-  text-shadow:0 0 22px rgba(0,255,255,.7);
+  font-size:56px;
+  font-weight:700;
+  color:var(--neon);
+  text-shadow:0 0 25px var(--neon);
 }
+
 #date{
   opacity:.7;
   margin-top:6px;
 }
 
-/* ========== SEARCH ========== */
+/* SEARCH */
 .search{
-  margin:35px auto 0;
+  margin:30px auto 0;
   width:100%;
   max-width:380px;
 }
+
 .search input{
   width:100%;
   padding:16px;
-  border-radius:18px;
   border:none;
   outline:none;
-  font-size:16px;
+  border-radius:18px;
   background:var(--glass);
-  backdrop-filter:var(--blur);
-  color:#fff;
-  caret-color:#00ffff;
-  -webkit-text-security:none; /* keyboard normal */
+  backdrop-filter:blur(12px);
+  font-size:17px;
+  color:white;
+  caret-color:#00ffd5;
+
+  /* 🔑 KEYBOARD FIX */
+  -webkit-text-security:none;
 }
 
-/* ========== FOOTER ========== */
+/* FOOTER */
 .footer{
   text-align:center;
   font-size:12px;
   opacity:.6;
+  margin-bottom:10px;
 }
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
-  <!-- TOP -->
   <div class="top">
     <div class="weather">☁ 11°C</div>
     <div>⚙</div>
   </div>
 
-  <!-- CLOCK -->
   <div class="clock">
     <div id="time">00:00</div>
     <div id="date">Loading...</div>
   </div>
 
-  <!-- SEARCH -->
   <div class="search">
     <input id="search"
-      placeholder="Search Google..."
-      onkeydown="if(event.key==='Enter')location.href='https://www.google.com/search?q='+this.value">
+      type="search"
+      inputmode="search"
+      autocomplete="off"
+      placeholder="Search Google…">
   </div>
 
-  <div class="footer">⚡ Focus Home • Offline • Script Safe</div>
+  <div class="footer">⚡ Focus Home • Offline • Clean</div>
+
 </div>
 
 <script>
-/* =====================================================
-   CLOCK (LIVE)
-   ===================================================== */
-function clock(){
+/* CLOCK */
+function updateClock(){
   const d=new Date();
-  time.innerText=d.toLocaleTimeString([],{
+  time.textContent=d.toLocaleTimeString([],{
     hour:'2-digit',minute:'2-digit'
   });
-  date.innerText=d.toDateString();
+  date.textContent=d.toDateString();
 }
-setInterval(clock,1000); clock();
+setInterval(updateClock,1000);updateClock();
 
-/* =====================================================
-   RAINBOW + SMART GLOW ENGINE
-   ===================================================== */
-let hue=0,last=Date.now();
-const search=document.getElementById("search");
+/* RGB TYPING INSIDE INPUT */
+const input=document.getElementById("search");
 
-function nextColor(){
-  hue=(hue+18)%360; // 🔧 speed control
-  return `hsl(${hue},100%,60%)`;
-}
-
-search.addEventListener("input",()=>{
-  const now=Date.now();
-  const speed=now-last;
-  last=now;
-
-  const glow=Math.max(12,Math.min(45,400/speed));
-  const color=nextColor();
-
-  search.style.color=color;
-  search.style.boxShadow=`
-    0 0 ${glow}px ${color},
-    0 0 ${glow*2}px ${color}
-  `;
+input.addEventListener("input",()=>{
+  const hue=Math.floor(Math.random()*360);
+  input.style.color=`hsl(${hue},100%,70%)`;
+  input.style.textShadow=`0 0 10px hsl(${hue},100%,70%)`;
 });
 
-/* =====================================================
-   OFFLINE CACHE (AUTO)
-   ===================================================== */
-if("serviceWorker"in navigator){
-  const sw=`
-    self.addEventListener('install',e=>{
-      e.waitUntil(
-        caches.open('focus-home').then(c=>
-          c.addAll(['./','wall.jpg'])
-        )
-      )
-    });
-    self.addEventListener('fetch',e=>{
-      e.respondWith(
-        caches.match(e.request).then(r=>r||fetch(e.request))
-      )
-    });
-  `;
-  const blob=new Blob([sw],{type:'text/javascript'});
-  navigator.serviceWorker.register(URL.createObjectURL(blob));
-}
+/* SEARCH */
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    location.href=
+      "https://www.google.com/search?q="+
+      encodeURIComponent(input.value);
+  }
+});
 </script>
+
 </body>
 </html>
