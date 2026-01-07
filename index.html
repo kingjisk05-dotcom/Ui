@@ -3,103 +3,118 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Neon Pro Home</title>
+<title>Focus Home Pro</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --neon:#00ffff;
-  --bg:#05070c;
-  --card:#0b1220;
+  --glass: rgba(0,0,0,0.45);
+  --blur: blur(12px);
 }
 
-*{
-  box-sizing:border-box;
-  font-family:system-ui,Segoe UI,Arial;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
-  min-height:100vh;
+  height:100vh;
+  font-family:'Poppins',sans-serif;
   background:
-    radial-gradient(circle at top,#0d1b2a,#05070c 60%),
-    url("https://picsum.photos/1080/1920?blur=2") center/cover no-repeat;
-  color:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(5,7,12,0.75);
-  backdrop-filter:blur(6px);
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.75)),
+    url("wall.jpg") center/cover no-repeat;
+  color:#fff;
 }
 
 .container{
-  position:relative;
-  z-index:2;
-  width:100%;
-  max-width:420px;
-  padding:22px;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:20px;
+}
+
+/* 🔹 TOP WIDGET (Edge style) */
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.weather{
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  padding:8px 14px;
+  border-radius:20px;
+  font-size:14px;
+}
+
+/* 🔹 CLOCK */
+.clock{
   text-align:center;
+  margin-top:40px;
 }
 
-/* CLOCK */
-#clock{
-  font-size:44px;
-  font-weight:700;
+#time{
+  font-size:52px;
+  font-weight:600;
   letter-spacing:2px;
-  color:var(--neon);
-  text-shadow:0 0 12px var(--neon);
+  text-shadow:0 0 20px rgba(0,255,255,.6);
 }
 
-/* SEARCH */
-.search-box{
-  margin:22px 0;
+#date{
+  opacity:.75;
+  margin-top:4px;
 }
 
-.search-box input{
+/* 🔹 SEARCH */
+.search{
+  margin:30px auto 0;
   width:100%;
-  padding:14px 16px;
-  border-radius:14px;
+  max-width:380px;
+}
+
+.search input{
+  width:100%;
+  padding:15px;
+  border-radius:16px;
   border:none;
   outline:none;
-  background:#0b1220;
-  color:white;
   font-size:16px;
-  box-shadow:0 0 12px rgba(0,255,255,.25);
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  color:#fff;
 }
 
-/* QUICK LINKS */
-.links{
+/* 🔹 ICON GRID */
+.apps{
+  margin:40px auto;
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-  margin-top:18px;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+  max-width:360px;
 }
 
-.link{
-  background:var(--card);
-  padding:14px 10px;
-  border-radius:16px;
+.app{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
   text-decoration:none;
   color:white;
-  font-size:14px;
-  box-shadow:0 0 10px rgba(0,255,255,.2);
-  transition:0.25s;
+  font-size:12px;
 }
 
-.link:hover{
-  transform:translateY(-4px);
-  box-shadow:
-    0 0 14px var(--neon),
-    0 0 30px rgba(0,255,255,.4);
+.app img{
+  width:52px;
+  height:52px;
+  border-radius:14px;
+  padding:8px;
+  background:var(--glass);
+  backdrop-filter:var(--blur);
 }
 
 /* FOOTER */
 .footer{
-  margin-top:22px;
+  text-align:center;
   font-size:12px;
   opacity:.6;
 }
@@ -107,50 +122,57 @@ body{
 </head>
 
 <body>
-<div class="overlay"></div>
 
 <div class="container">
 
-  <div id="clock">00:00</div>
-
-  <div class="search-box">
-    <form action="https://www.google.com/search" method="get">
-      <input name="q" placeholder="Search Google..." autocomplete="off">
-    </form>
+  <!-- TOP -->
+  <div class="top">
+    <div class="weather">☁ 11°C</div>
+    <div>⚙</div>
   </div>
 
-  <div class="links">
-    <a class="link" href="https://youtube.com">YouTube</a>
-    <a class="link" href="https://telegram.org">Telegram</a>
-    <a class="link" href="https://chat.openai.com">ChatGPT</a>
-    <a class="link" href="https://google.com">Google</a>
-    <a class="link" href="https://github.com">GitHub</a>
-    <a class="link" href="https://start.me">Start.me</a>
+  <!-- CLOCK -->
+  <div class="clock">
+    <div id="time">00:00</div>
+    <div id="date">Loading...</div>
   </div>
 
-  <div class="footer">
-    ⚡ Neon Pro Home • Offline • Script Safe
+  <!-- SEARCH -->
+  <div class="search">
+    <input placeholder="Search Google..."
+      onkeydown="if(event.key==='Enter')location.href='https://www.google.com/search?q='+this.value">
   </div>
+
+  <!-- APPS -->
+  <div class="apps">
+    <a class="app" href="https://youtube.com">
+      <img src="icons/youtube.png"><span>YouTube</span>
+    </a>
+    <a class="app" href="https://telegram.org">
+      <img src="icons/telegram.png"><span>Telegram</span>
+    </a>
+    <a class="app" href="https://chat.openai.com">
+      <img src="icons/chatgpt.png"><span>ChatGPT</span>
+    </a>
+    <a class="app" href="https://google.com">
+      <img src="icons/google.png"><span>Google</span>
+    </a>
+  </div>
+
+  <div class="footer">⚡ Focus Home • Minimal • Offline</div>
 
 </div>
 
 <script>
-/* CLOCK */
 function updateClock(){
   const d=new Date();
-  let h=d.getHours(), m=d.getMinutes();
-  if(m<10)m="0"+m;
-  document.getElementById("clock").textContent=h+":"+m;
+  document.getElementById('time').innerText=
+    d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('date').innerText=
+    d.toDateString();
 }
 setInterval(updateClock,1000);
 updateClock();
-
-/* WALLPAPER AUTO CHANGE */
-setInterval(()=>{
-  document.body.style.backgroundImage=
-    "radial-gradient(circle at top,#0d1b2a,#05070c 60%),"+
-    "url('https://picsum.photos/1080/1920?random="+Math.random()+"')";
-}, 600000); // every 10 min
 </script>
 
 </body>
