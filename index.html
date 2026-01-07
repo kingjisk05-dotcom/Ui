@@ -6,12 +6,10 @@
 <title>Shishupal Home UI</title>
 
 <style>
-/* ================= USER EDIT ZONE ================= */
 :root{
   --neon:#00ffd5;
   --glass:rgba(0,0,0,.38);
 }
-/* ================================================= */
 
 *{box-sizing:border-box}
 
@@ -82,9 +80,15 @@ body{
   font-size:17px;
   color:white;
   caret-color:var(--neon);
-
-  /* keyboard password fix */
   -webkit-text-security:none;
+}
+
+/* ---------- DRAG SUPPORT ---------- */
+.draggable{
+  position:fixed;
+  touch-action:none;
+  cursor:grab;
+  z-index:999;
 }
 
 /* ---------- FOOTER ---------- */
@@ -106,12 +110,14 @@ body{
     <div>⚙</div>
   </div>
 
-  <div class="clock">
+  <!-- CLOCK -->
+  <div class="clock draggable" id="clock">
     <div id="time">00:00</div>
     <div id="date">Loading…</div>
   </div>
 
-  <div class="search">
+  <!-- SEARCH -->
+  <div class="search draggable" id="searchBox">
     <input id="search"
       type="search"
       inputmode="search"
@@ -124,9 +130,7 @@ body{
 </div>
 
 <script>
-/* =================================================
-   CLOCK (LIVE)
-================================================= */
+/* ================= CLOCK ================= */
 function updateClock(){
   const d=new Date();
   time.textContent=d.toLocaleTimeString([],{
@@ -137,9 +141,7 @@ function updateClock(){
 setInterval(updateClock,1000);
 updateClock();
 
-/* =================================================
-   RGB TYPING + SMART GLOW (SPEED BASED)
-================================================= */
+/* ================= RGB TYPING ================= */
 const input=document.getElementById("search");
 let lastType=Date.now();
 
@@ -155,9 +157,7 @@ input.addEventListener("input",()=>{
   input.style.textShadow=`0 0 ${glow}px hsl(${hue},100%,70%)`;
 });
 
-/* =================================================
-   GOOGLE SEARCH
-================================================= */
+/* ================= SEARCH ================= */
 input.addEventListener("keydown",e=>{
   if(e.key==="Enter"){
     location.href=
@@ -166,9 +166,7 @@ input.addEventListener("keydown",e=>{
   }
 });
 
-/* =================================================
-   WEATHER (YAMUNANAGAR, HARYANA)
-================================================= */
+/* ================= WEATHER ================= */
 const API_KEY="f1f5a371042922700734867c52f50526";
 const CITY="Yamunanagar";
 const COUNTRY="IN";
@@ -179,14 +177,52 @@ async function loadWeather(){
       `https://api.openweathermap.org/data/2.5/weather?q=${CITY},${COUNTRY}&units=metric&appid=${API_KEY}`
     );
     const data=await res.json();
-    document.getElementById("weather").textContent=
+    weather.textContent=
       `⛅ ${Math.round(data.main.temp)}°C • ${CITY}`;
   }catch{
-    document.getElementById("weather").textContent="Weather offline";
+    weather.textContent="Weather offline";
   }
 }
 loadWeather();
 setInterval(loadWeather,10*60*1000);
+
+/* ================= DRAG ENGINE ================= */
+function makeDraggable(el,key){
+  const saved=JSON.parse(localStorage.getItem(key));
+  if(saved){
+    el.style.left=saved.x+"px";
+    el.style.top=saved.y+"px";
+  }
+
+  let sx,sy,ix,iy;
+
+  el.addEventListener("pointerdown",e=>{
+    sx=e.clientX;
+    sy=e.clientY;
+    ix=el.offsetLeft;
+    iy=el.offsetTop;
+    el.setPointerCapture(e.pointerId);
+    el.style.cursor="grabbing";
+  });
+
+  el.addEventListener("pointermove",e=>{
+    if(sx==null)return;
+    el.style.left=ix+(e.clientX-sx)+"px";
+    el.style.top =iy+(e.clientY-sy)+"px";
+  });
+
+  el.addEventListener("pointerup",()=>{
+    el.style.cursor="grab";
+    localStorage.setItem(key,JSON.stringify({
+      x:el.offsetLeft,
+      y:el.offsetTop
+    }));
+    sx=null;
+  });
+}
+
+makeDraggable(clock,"pos_clock");
+makeDraggable(searchBox,"pos_search");
 </script>
 
 </body>
