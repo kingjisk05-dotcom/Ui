@@ -29,19 +29,28 @@ input,textarea{
   user-select:text;
 }
 
-/* ================= BODY ================= */
+/* ================= BODY (PERFECT WALLPAPER) ================= */
 body{
   margin:0;
   min-height:100vh;
   font-family:system-ui, sans-serif;
 
   background-image:url("wall.jpg");
-  background-size:cover;
-  background-position:center;
+
+  background-size:cover;               /* 🔑 auto fit */
+  background-position:center center;   /* 🔑 center lock */
   background-repeat:no-repeat;
-  background-attachment:fixed;
+  background-attachment:fixed;         /* 🔑 move nahi kare */
+
+  image-rendering:auto;
+  image-rendering:-webkit-optimize-contrast;
 
   color:#fff;
+}
+
+/* Tall mobile safety */
+@media (max-aspect-ratio: 3/4){
+  body{ background-position:center top; }
 }
 
 /* ================= LAYOUT ================= */
@@ -58,6 +67,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  padding-top:12px;
 }
 
 .weather{
@@ -89,8 +99,6 @@ body{
 #time{
   font-size:56px;
   font-weight:700;
-  color:var(--neon);
-  text-shadow:0 0 25px var(--neon);
 }
 #date{opacity:.7;margin-top:6px}
 
@@ -106,11 +114,19 @@ body{
   border:none;
   outline:none;
   border-radius:18px;
-  background:var(--glass);
-  backdrop-filter:blur(12px);
+
+  background:rgba(0,0,0,.35);
+  backdrop-filter:blur(14px);
+
   font-size:17px;
   color:white;
   caret-color:var(--neon);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.08),
+    0 0 18px rgba(0,255,213,.25);
+
+  transition:box-shadow .3s ease, background .3s ease;
   -webkit-text-security:none;
 }
 
@@ -126,7 +142,7 @@ body{
 
 <body>
 
-<!-- SETTINGS -->
+<!-- TOP BAR -->
 <div class="top">
   <div class="weather" id="weather">⛅ Loading…</div>
   <div id="settingsBtn">⚙</div>
@@ -154,10 +170,6 @@ body{
       placeholder="Search Google…">
   </div>
 
-  <div class="footer">⚡ Focus Home • Clean • Offline Ready</div>
-
-</div>
-
 <script>
 /* ================= CLOCK ================= */
 function updateClock(){
@@ -169,6 +181,19 @@ function updateClock(){
 }
 setInterval(updateClock,1000);updateClock();
 
+/* ===== SMART CLOCK COLOR (REFRESH ANIMATION) ===== */
+(function(){
+  const t=document.getElementById("time");
+  const base=Math.floor(Math.random()*260+40);
+  let c=base-40,s=40;
+  const a=setInterval(()=>{
+    c++;
+    t.style.color=`hsl(${c},100%,65%)`;
+    t.style.textShadow=`0 0 28px hsl(${c},100%,60%)`;
+    if(--s<=0)clearInterval(a);
+  },20);
+})();
+
 /* ================= RGB TYPING ================= */
 const input=document.getElementById("search");
 let lastType=Date.now();
@@ -176,16 +201,20 @@ input.addEventListener("input",()=>{
   const now=Date.now();
   const speed=Math.min(300,now-lastType);
   lastType=now;
+
   const hue=Math.floor(Math.random()*360);
-  const glow=Math.max(6,30-speed/10);
-  input.style.color=`hsl(${hue},100%,70%)`;
-  input.style.textShadow=`0 0 ${glow}px hsl(${hue},100%,70%)`;
+  const glow=Math.max(10,40-speed/8);
+
+  input.style.color=`hsl(${hue},100%,72%)`;
+  input.style.textShadow=`0 0 ${glow}px hsl(${hue},100%,65%)`;
+  input.style.boxShadow=`0 0 ${glow}px hsl(${hue},100%,60%)`;
 });
 
 /* ================= SEARCH ================= */
 input.addEventListener("keydown",e=>{
   if(e.key==="Enter"){
-    location.href="https://www.google.com/search?q="+encodeURIComponent(input.value);
+    location.href="https://www.google.com/search?q="+
+      encodeURIComponent(input.value);
   }
 });
 
@@ -193,10 +222,14 @@ input.addEventListener("keydown",e=>{
 const API_KEY="f1f5a371042922700734867c52f50526";
 async function loadWeather(){
   try{
-    const r=await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Yamunanagar,IN&units=metric&appid=${API_KEY}`);
+    const r=await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=Yamunanagar,IN&units=metric&appid=${API_KEY}`
+    );
     const d=await r.json();
     weather.textContent=`⛅ ${Math.round(d.main.temp)}°C • Yamunanagar`;
-  }catch{weather.textContent="Weather offline";}
+  }catch{
+    weather.textContent="Weather offline";
+  }
 }
 loadWeather();setInterval(loadWeather,600000);
 
@@ -227,7 +260,9 @@ function makeDraggable(el,key){
 
   el.addEventListener("pointerup",()=>{
     if(!enabled)return;
-    localStorage.setItem(key,JSON.stringify({x:el.offsetLeft,y:el.offsetTop}));
+    localStorage.setItem(key,JSON.stringify({
+      x:el.offsetLeft,y:el.offsetTop
+    }));
     el.style.boxShadow="none";
     enabled=false;
   });
@@ -237,8 +272,9 @@ makeDraggable(searchBox,"pos_search");
 
 /* ================= WALLPAPER PICKER ================= */
 const savedWall=localStorage.getItem("userWallpaper");
-if(savedWall)document.body.style.backgroundImage=`url(${savedWall})`;
-
+if(savedWall){
+  document.body.style.backgroundImage=`url(${savedWall})`;
+}
 settingsBtn.onclick=()=>wallPicker.click();
 wallPicker.onchange=e=>{
   const f=e.target.files[0];
@@ -253,11 +289,13 @@ wallPicker.onchange=e=>{
 
 /* ================= BLOCK COPY / MENU ================= */
 document.addEventListener("contextmenu",e=>e.preventDefault());
-["copy","cut","paste"].forEach(x=>document.addEventListener(x,e=>e.preventDefault()));
+["copy","cut","paste"].forEach(x=>{
+  document.addEventListener(x,e=>e.preventDefault());
+});
 document.addEventListener("selectstart",e=>{
   if(!e.target.closest("input"))e.preventDefault();
 });
 </script>
 
 </body>
-</html>
+</html>l>
