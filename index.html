@@ -150,6 +150,31 @@ input.addEventListener("keydown",e=>{
   }
 });
 </script>
+  <script>
+const API_KEY = "f1f5a371042922700734867c52f50526"; // ← yahan apni key paste karo
+const CITY = "Yamunanagar";
+const COUNTRY = "IN";
+
+async function loadWeather() {
+  try {
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${CITY},${COUNTRY}&units=metric&appid=${API_KEY}`
+    );
+    const data = await res.json();
+
+    const temp = Math.round(data.main.temp);
+    const condition = data.weather[0].main;
+
+    document.getElementById("weather").innerText =
+      `☁ ${temp}°C • ${CITY}`;
+  } catch (e) {
+    document.getElementById("weather").innerText = "Weather unavailable";
+  }
+}
+
+loadWeather();
+setInterval(loadWeather, 10 * 60 * 1000); // every 10 minutes
+  </script>
 
 </body>
 </html>
