@@ -5,13 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Focus Home Pro</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
 :root{
-  --accent:#00ffff;
   --glass: rgba(0,0,0,0.45);
   --blur: blur(14px);
+  --accent: #00ffd5;
 }
 
 *{box-sizing:border-box}
@@ -19,13 +17,14 @@
 body{
   margin:0;
   height:100vh;
-  font-family:'Poppins',sans-serif;
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
   background:
     linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.75)),
     url("wall.jpg") center/cover no-repeat;
   color:#fff;
 }
 
+/* ===== LAYOUT ===== */
 .container{
   height:100%;
   display:flex;
@@ -34,7 +33,7 @@ body{
   padding:20px;
 }
 
-/* TOP */
+/* ===== TOP BAR ===== */
 .top{
   display:flex;
   justify-content:space-between;
@@ -49,18 +48,18 @@ body{
   font-size:14px;
 }
 
-/* CLOCK */
+/* ===== CLOCK ===== */
 .clock{
   text-align:center;
-  margin-top:50px;
+  margin-top:40px;
 }
 
 #time{
-  font-size:54px;
+  font-size:52px;
   font-weight:600;
   letter-spacing:2px;
   color:var(--accent);
-  text-shadow:0 0 25px var(--accent);
+  text-shadow:0 0 25px rgba(0,255,210,.7);
 }
 
 #date{
@@ -68,41 +67,54 @@ body{
   margin-top:6px;
 }
 
-/* SEARCH */
+/* ===== SEARCH ===== */
 .search{
-  margin:40px auto 0;
+  margin:35px auto 0;
   width:100%;
-  max-width:400px;
+  max-width:380px;
 }
 
-.searchBox{
-  width:100%;
-  padding:16px;
-  border-radius:18px;
-  border:none;
-  outline:none;
-  font-size:16px;
+.rgb-wrapper{
+  position:relative;
   background:var(--glass);
   backdrop-filter:var(--blur);
-  color:#fff;
+  border-radius:16px;
+  padding:15px;
+}
+
+.real-input{
+  width:100%;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:transparent;
   caret-color:var(--accent);
+  font-size:16px;
+  position:relative;
+  z-index:2;
+
+  /* keyboard fix */
+  inputmode:text;
 }
 
-/* RGB typing effect */
-.rgb-preview{
-  text-align:center;
-  margin-top:10px;
-  min-height:22px;
-  font-size:15px;
-  word-break:break-word;
+.rgb-text{
+  position:absolute;
+  top:50%;
+  left:15px;
+  transform:translateY(-50%);
+  display:flex;
+  gap:1px;
+  pointer-events:none;
+  font-size:16px;
+  white-space:nowrap;
 }
 
-/* FOOTER */
+/* ===== FOOTER ===== */
 .footer{
   text-align:center;
   font-size:12px;
   opacity:.6;
-  margin-bottom:10px;
+  margin-bottom:8px;
 }
 </style>
 </head>
@@ -125,59 +137,58 @@ body{
 
   <!-- SEARCH -->
   <div class="search">
-    <input id="search"
-      class="searchBox"
-      placeholder="Search Google..."
-      autocomplete="off">
-    <div class="rgb-preview" id="rgbText"></div>
+    <div class="rgb-wrapper">
+      <div id="rgbInput" class="rgb-text"></div>
+      <input
+        id="realInput"
+        class="real-input"
+        type="text"
+        placeholder="Search Google..."
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="none"
+        spellcheck="false">
+    </div>
   </div>
 
-  <div class="footer">⚡ Focus Home • Offline • Minimal</div>
+  <div class="footer">⚡ Focus Home • Minimal • Offline</div>
 
 </div>
 
 <script>
-/* 🔹 LIVE CLOCK */
+/* ===== CLOCK ===== */
 function updateClock(){
   const d=new Date();
-  time.innerText=d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  date.innerText=d.toDateString();
+  document.getElementById('time').innerText =
+    d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('date').innerText =
+    d.toDateString();
 }
 setInterval(updateClock,1000);
 updateClock();
 
-/* 🔹 GOOGLE SEARCH */
-search.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    location.href='https://www.google.com/search?q='+encodeURIComponent(search.value);
-  }
-});
+/* ===== RGB SEARCH TEXT ===== */
+const input = document.getElementById('realInput');
+const rgb = document.getElementById('rgbInput');
 
-/* 🔹 RGB PER LETTER EFFECT */
-search.addEventListener('input',()=>{
-  rgbText.innerHTML='';
-  [...search.value].forEach(ch=>{
-    const span=document.createElement('span');
-    const hue=Math.floor(Math.random()*360);
-    span.style.color=`hsl(${hue},100%,65%)`;
-    span.textContent=ch;
-    rgbText.appendChild(span);
+input.addEventListener('input', () => {
+  rgb.innerHTML = '';
+  [...input.value].forEach(ch => {
+    const span = document.createElement('span');
+    span.textContent = ch;
+    span.style.color = `hsl(${Math.random()*360},100%,65%)`;
+    rgb.appendChild(span);
   });
 });
 
-/* 🔹 WALLPAPER BASE COLOR (SIMULATED SMART PICK) */
-const accents=[
-  '#00ffff','#00ff9c','#ff4ecd','#ffaa00','#8b5cff'
-];
-document.documentElement.style.setProperty(
-  '--accent',
-  accents[Math.floor(Math.random()*accents.length)]
-);
-
-/* 🔹 OFFLINE CACHE */
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
+/* ===== GOOGLE SEARCH ===== */
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    location.href =
+      'https://www.google.com/search?q=' +
+      encodeURIComponent(input.value);
+  }
+});
 </script>
 
 </body>
