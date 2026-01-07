@@ -9,8 +9,9 @@
 
 <style>
 :root{
+  --accent:#00ffff;
   --glass: rgba(0,0,0,0.45);
-  --blur: blur(12px);
+  --blur: blur(14px);
 }
 
 *{box-sizing:border-box}
@@ -33,7 +34,7 @@ body{
   padding:20px;
 }
 
-/* 🔹 TOP WIDGET (Edge style) */
+/* TOP */
 .top{
   display:flex;
   justify-content:space-between;
@@ -48,68 +49,52 @@ body{
   font-size:14px;
 }
 
-/* 🔹 CLOCK */
+/* CLOCK */
 .clock{
   text-align:center;
-  margin-top:40px;
+  margin-top:50px;
 }
 
 #time{
-  font-size:52px;
+  font-size:54px;
   font-weight:600;
   letter-spacing:2px;
-  text-shadow:0 0 20px rgba(0,255,255,.6);
+  color:var(--accent);
+  text-shadow:0 0 25px var(--accent);
 }
 
 #date{
-  opacity:.75;
-  margin-top:4px;
+  opacity:.7;
+  margin-top:6px;
 }
 
-/* 🔹 SEARCH */
+/* SEARCH */
 .search{
-  margin:30px auto 0;
+  margin:40px auto 0;
   width:100%;
-  max-width:380px;
+  max-width:400px;
 }
 
-.search input{
+.searchBox{
   width:100%;
-  padding:15px;
-  border-radius:16px;
+  padding:16px;
+  border-radius:18px;
   border:none;
   outline:none;
   font-size:16px;
   background:var(--glass);
   backdrop-filter:var(--blur);
   color:#fff;
+  caret-color:var(--accent);
 }
 
-/* 🔹 ICON GRID */
-.apps{
-  margin:40px auto;
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-  max-width:360px;
-}
-
-.app{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-decoration:none;
-  color:white;
-  font-size:12px;
-}
-
-.app img{
-  width:52px;
-  height:52px;
-  border-radius:14px;
-  padding:8px;
-  background:var(--glass);
-  backdrop-filter:var(--blur);
+/* RGB typing effect */
+.rgb-preview{
+  text-align:center;
+  margin-top:10px;
+  min-height:22px;
+  font-size:15px;
+  word-break:break-word;
 }
 
 /* FOOTER */
@@ -117,6 +102,7 @@ body{
   text-align:center;
   font-size:12px;
   opacity:.6;
+  margin-bottom:10px;
 }
 </style>
 </head>
@@ -139,40 +125,59 @@ body{
 
   <!-- SEARCH -->
   <div class="search">
-    <input placeholder="Search Google..."
-      onkeydown="if(event.key==='Enter')location.href='https://www.google.com/search?q='+this.value">
+    <input id="search"
+      class="searchBox"
+      placeholder="Search Google..."
+      autocomplete="off">
+    <div class="rgb-preview" id="rgbText"></div>
   </div>
 
-  <!-- APPS -->
-  <div class="apps">
-    <a class="app" href="https://youtube.com">
-      <img src="icons/youtube.png"><span>YouTube</span>
-    </a>
-    <a class="app" href="https://telegram.org">
-      <img src="icons/telegram.png"><span>Telegram</span>
-    </a>
-    <a class="app" href="https://chat.openai.com">
-      <img src="icons/chatgpt.png"><span>ChatGPT</span>
-    </a>
-    <a class="app" href="https://google.com">
-      <img src="icons/google.png"><span>Google</span>
-    </a>
-  </div>
-
-  <div class="footer">⚡ Focus Home • Minimal • Offline</div>
+  <div class="footer">⚡ Focus Home • Offline • Minimal</div>
 
 </div>
 
 <script>
+/* 🔹 LIVE CLOCK */
 function updateClock(){
   const d=new Date();
-  document.getElementById('time').innerText=
-    d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  document.getElementById('date').innerText=
-    d.toDateString();
+  time.innerText=d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  date.innerText=d.toDateString();
 }
 setInterval(updateClock,1000);
 updateClock();
+
+/* 🔹 GOOGLE SEARCH */
+search.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    location.href='https://www.google.com/search?q='+encodeURIComponent(search.value);
+  }
+});
+
+/* 🔹 RGB PER LETTER EFFECT */
+search.addEventListener('input',()=>{
+  rgbText.innerHTML='';
+  [...search.value].forEach(ch=>{
+    const span=document.createElement('span');
+    const hue=Math.floor(Math.random()*360);
+    span.style.color=`hsl(${hue},100%,65%)`;
+    span.textContent=ch;
+    rgbText.appendChild(span);
+  });
+});
+
+/* 🔹 WALLPAPER BASE COLOR (SIMULATED SMART PICK) */
+const accents=[
+  '#00ffff','#00ff9c','#ff4ecd','#ffaa00','#8b5cff'
+];
+document.documentElement.style.setProperty(
+  '--accent',
+  accents[Math.floor(Math.random()*accents.length)]
+);
+
+/* 🔹 OFFLINE CACHE */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 </script>
 
 </body>
