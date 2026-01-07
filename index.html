@@ -1,1 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Pro Home</title>
 
+<style>
+:root{
+  --neon:#00ffff;
+  --bg:#05070c;
+  --card:#0b1220;
+}
+
+*{
+  box-sizing:border-box;
+  font-family:system-ui,Segoe UI,Arial;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top,#0d1b2a,#05070c 60%),
+    url("https://picsum.photos/1080/1920?blur=2") center/cover no-repeat;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(5,7,12,0.75);
+  backdrop-filter:blur(6px);
+}
+
+.container{
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:420px;
+  padding:22px;
+  text-align:center;
+}
+
+/* CLOCK */
+#clock{
+  font-size:44px;
+  font-weight:700;
+  letter-spacing:2px;
+  color:var(--neon);
+  text-shadow:0 0 12px var(--neon);
+}
+
+/* SEARCH */
+.search-box{
+  margin:22px 0;
+}
+
+.search-box input{
+  width:100%;
+  padding:14px 16px;
+  border-radius:14px;
+  border:none;
+  outline:none;
+  background:#0b1220;
+  color:white;
+  font-size:16px;
+  box-shadow:0 0 12px rgba(0,255,255,.25);
+}
+
+/* QUICK LINKS */
+.links{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-top:18px;
+}
+
+.link{
+  background:var(--card);
+  padding:14px 10px;
+  border-radius:16px;
+  text-decoration:none;
+  color:white;
+  font-size:14px;
+  box-shadow:0 0 10px rgba(0,255,255,.2);
+  transition:0.25s;
+}
+
+.link:hover{
+  transform:translateY(-4px);
+  box-shadow:
+    0 0 14px var(--neon),
+    0 0 30px rgba(0,255,255,.4);
+}
+
+/* FOOTER */
+.footer{
+  margin-top:22px;
+  font-size:12px;
+  opacity:.6;
+}
+</style>
+</head>
+
+<body>
+<div class="overlay"></div>
+
+<div class="container">
+
+  <div id="clock">00:00</div>
+
+  <div class="search-box">
+    <form action="https://www.google.com/search" method="get">
+      <input name="q" placeholder="Search Google..." autocomplete="off">
+    </form>
+  </div>
+
+  <div class="links">
+    <a class="link" href="https://youtube.com">YouTube</a>
+    <a class="link" href="https://telegram.org">Telegram</a>
+    <a class="link" href="https://chat.openai.com">ChatGPT</a>
+    <a class="link" href="https://google.com">Google</a>
+    <a class="link" href="https://github.com">GitHub</a>
+    <a class="link" href="https://start.me">Start.me</a>
+  </div>
+
+  <div class="footer">
+    ⚡ Neon Pro Home • Offline • Script Safe
+  </div>
+
+</div>
+
+<script>
+/* CLOCK */
+function updateClock(){
+  const d=new Date();
+  let h=d.getHours(), m=d.getMinutes();
+  if(m<10)m="0"+m;
+  document.getElementById("clock").textContent=h+":"+m;
+}
+setInterval(updateClock,1000);
+updateClock();
+
+/* WALLPAPER AUTO CHANGE */
+setInterval(()=>{
+  document.body.style.backgroundImage=
+    "radial-gradient(circle at top,#0d1b2a,#05070c 60%),"+
+    "url('https://picsum.photos/1080/1920?random="+Math.random()+"')";
+}, 600000); // every 10 min
+</script>
+
+</body>
+</html>
