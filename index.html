@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shishupal Ui</title>
+<title>Shishupal Home UI</title>
 
 <style>
+/* ================= USER EDIT ZONE ================= */
 :root{
   --neon:#00ffd5;
-  --glass:rgba(0,0,0,.45);
+  --glass:rgba(0,0,0,.38);
 }
+/* ================================================= */
 
 *{box-sizing:border-box}
 
@@ -17,7 +19,7 @@ body{
   margin:0;
   height:100vh;
   font-family:system-ui, sans-serif;
-  background: url("wall.jpg") center/cover no-repeat;
+  background:url("wall.jpg") center/cover no-repeat;
   color:#fff;
 }
 
@@ -29,7 +31,7 @@ body{
   padding:18px;
 }
 
-/* TOP */
+/* ---------- TOP ---------- */
 .top{
   display:flex;
   justify-content:space-between;
@@ -44,7 +46,7 @@ body{
   font-size:14px;
 }
 
-/* CLOCK */
+/* ---------- CLOCK ---------- */
 .clock{
   text-align:center;
   margin-top:40px;
@@ -62,7 +64,7 @@ body{
   margin-top:6px;
 }
 
-/* SEARCH */
+/* ---------- SEARCH ---------- */
 .search{
   margin:30px auto 0;
   width:100%;
@@ -79,13 +81,13 @@ body{
   backdrop-filter:blur(12px);
   font-size:17px;
   color:white;
-  caret-color:#00ffd5;
+  caret-color:var(--neon);
 
-  /* 🔑 KEYBOARD FIX */
+  /* keyboard password fix */
   -webkit-text-security:none;
 }
 
-/* FOOTER */
+/* ---------- FOOTER ---------- */
 .footer{
   text-align:center;
   font-size:12px;
@@ -100,13 +102,13 @@ body{
 <div class="container">
 
   <div class="top">
-    <div class="weather">☁ 11°C</div>
+    <div class="weather" id="weather">⛅ Loading…</div>
     <div>⚙</div>
   </div>
 
   <div class="clock">
     <div id="time">00:00</div>
-    <div id="date">Loading...</div>
+    <div id="date">Loading…</div>
   </div>
 
   <div class="search">
@@ -117,12 +119,14 @@ body{
       placeholder="Search Google…">
   </div>
 
-  <div class="footer">⚡ Focus Home • Offline • Clean</div>
+  <div class="footer">⚡ Focus Home • Clean • Offline Ready</div>
 
 </div>
 
 <script>
-/* CLOCK */
+/* =================================================
+   CLOCK (LIVE)
+================================================= */
 function updateClock(){
   const d=new Date();
   time.textContent=d.toLocaleTimeString([],{
@@ -130,18 +134,30 @@ function updateClock(){
   });
   date.textContent=d.toDateString();
 }
-setInterval(updateClock,1000);updateClock();
+setInterval(updateClock,1000);
+updateClock();
 
-/* RGB TYPING INSIDE INPUT */
+/* =================================================
+   RGB TYPING + SMART GLOW (SPEED BASED)
+================================================= */
 const input=document.getElementById("search");
+let lastType=Date.now();
 
 input.addEventListener("input",()=>{
+  const now=Date.now();
+  const speed=Math.min(300, now-lastType);
+  lastType=now;
+
   const hue=Math.floor(Math.random()*360);
+  const glow=Math.max(6, 30 - speed/10);
+
   input.style.color=`hsl(${hue},100%,70%)`;
-  input.style.textShadow=`0 0 10px hsl(${hue},100%,70%)`;
+  input.style.textShadow=`0 0 ${glow}px hsl(${hue},100%,70%)`;
 });
 
-/* SEARCH */
+/* =================================================
+   GOOGLE SEARCH
+================================================= */
 input.addEventListener("keydown",e=>{
   if(e.key==="Enter"){
     location.href=
@@ -149,32 +165,29 @@ input.addEventListener("keydown",e=>{
       encodeURIComponent(input.value);
   }
 });
-</script>
-  <script>
-const API_KEY = "f1f5a371042922700734867c52f50526"; // ← yahan apni key paste karo
-const CITY = "Yamunanagar";
-const COUNTRY = "IN";
 
-async function loadWeather() {
-  try {
-    const res = await fetch(
+/* =================================================
+   WEATHER (YAMUNANAGAR, HARYANA)
+================================================= */
+const API_KEY="f1f5a371042922700734867c52f50526";
+const CITY="Yamunanagar";
+const COUNTRY="IN";
+
+async function loadWeather(){
+  try{
+    const res=await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${CITY},${COUNTRY}&units=metric&appid=${API_KEY}`
     );
-    const data = await res.json();
-
-    const temp = Math.round(data.main.temp);
-    const condition = data.weather[0].main;
-
-    document.getElementById("weather").innerText =
-      `☁ ${temp}°C • ${CITY}`;
-  } catch (e) {
-    document.getElementById("weather").innerText = "Weather unavailable";
+    const data=await res.json();
+    document.getElementById("weather").textContent=
+      `⛅ ${Math.round(data.main.temp)}°C • ${CITY}`;
+  }catch{
+    document.getElementById("weather").textContent="Weather offline";
   }
 }
-
 loadWeather();
-setInterval(loadWeather, 10 * 60 * 1000); // every 10 minutes
-  </script>
+setInterval(loadWeather,10*60*1000);
+</script>
 
 </body>
 </html>
