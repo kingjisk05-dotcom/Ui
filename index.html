@@ -187,42 +187,66 @@ loadWeather();
 setInterval(loadWeather,10*60*1000);
 
 /* ================= DRAG ENGINE ================= */
-function makeDraggable(el,key){
-  const saved=JSON.parse(localStorage.getItem(key));
+function makeDraggable(el, key){
+  const saved = JSON.parse(localStorage.getItem(key));
   if(saved){
-    el.style.left=saved.x+"px";
-    el.style.top=saved.y+"px";
+    el.style.left = saved.x + "px";
+    el.style.top  = saved.y + "px";
   }
 
-  let sx,sy,ix,iy;
+  let enabled = false;
+  let tapTimer = 0;
+  let sx, sy, ix, iy;
 
-  el.addEventListener("pointerdown",e=>{
-    sx=e.clientX;
-    sy=e.clientY;
-    ix=el.offsetLeft;
-    iy=el.offsetTop;
+  /* ===== DOUBLE TAP DETECT ===== */
+  el.addEventListener("pointerdown", e => {
+    const now = Date.now();
+    if(now - tapTimer < 300){
+      enabled = !enabled;
+
+      el.style.boxShadow = enabled
+        ? "0 0 25px rgba(0,255,213,.9)"
+        : "none";
+    }
+    tapTimer = now;
+
+    if(!enabled) return;
+
+    sx = e.clientX;
+    sy = e.clientY;
+    ix = el.offsetLeft;
+    iy = el.offsetTop;
     el.setPointerCapture(e.pointerId);
-    el.style.cursor="grabbing";
+    el.style.cursor = "grabbing";
   });
 
-  el.addEventListener("pointermove",e=>{
-    if(sx==null)return;
-    el.style.left=ix+(e.clientX-sx)+"px";
-    el.style.top =iy+(e.clientY-sy)+"px";
+  /* ===== DRAG MOVE ===== */
+  el.addEventListener("pointermove", e => {
+    if(!enabled || sx == null) return;
+
+    el.style.left = ix + (e.clientX - sx) + "px";
+    el.style.top  = iy + (e.clientY - sy) + "px";
   });
 
-  el.addEventListener("pointerup",()=>{
-    el.style.cursor="grab";
-    localStorage.setItem(key,JSON.stringify({
-      x:el.offsetLeft,
-      y:el.offsetTop
+  /* ===== RELEASE ===== */
+  el.addEventListener("pointerup", () => {
+    if(!enabled) return;
+
+    localStorage.setItem(key, JSON.stringify({
+      x: el.offsetLeft,
+      y: el.offsetTop
     }));
-    sx=null;
+
+    sx = null;
+    el.style.cursor = "grab";
+    el.style.boxShadow = "none";
+    enabled = false; // auto lock again
   });
 }
 
-makeDraggable(clock,"pos_clock");
-makeDraggable(searchBox,"pos_search");
+/* APPLY */
+makeDraggable(clock, "pos_clock");
+makeDraggable(searchBox, "pos_search");
 </script>
 
 </body>
