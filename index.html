@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Shishupal OS • Ultra</title>
+<title>Shishupal OS • Ultra Hybrid</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 /* ================= VARIABLES ================= */
 :root {
-  --neon: #00ffd5;
-  --neon-secondary: #bd00ff;
+  --neon: #ff34b3;
   --glass: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
   --text: #ffffff;
@@ -28,13 +27,19 @@ body {
   margin: 0;
   height: 100vh;
   font-family: 'Segoe UI', system-ui, sans-serif;
-  background: #000;
+  background-color: #000;
   color: var(--text);
-  overflow: hidden; /* No scrollbars */
+  overflow: hidden;
   transition: background 0.5s ease;
+  
+  /* DEFAULT FALLBACK */
+  background-image: url("wall.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-/* ================= LIVE WALLPAPER (VIDEO/IMG) ================= */
+/* ================= LIVE WALLPAPER (VIDEO) ================= */
 #bg-video {
   position: fixed;
   right: 0;
@@ -43,14 +48,8 @@ body {
   min-height: 100%;
   z-index: -1;
   object-fit: cover;
-  filter: brightness(0.6); /* Darken for readability */
-}
-
-/* Fallback Image if video fails or user sets image */
-body.static-bg {
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  filter: brightness(0.7);
+  display: none; /* Hidden by default */
 }
 
 /* ================= UI LAYOUT ================= */
@@ -86,7 +85,6 @@ body.static-bg {
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .settings-btn {
@@ -94,35 +92,35 @@ body.static-bg {
   cursor: pointer;
   transition: transform 0.5s ease;
   padding: 10px;
+  text-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 .settings-btn:hover { transform: rotate(90deg); color: var(--neon); }
 
-/* ================= MAIN CONTENT (3D TILT) ================= */
+/* ================= CENTER STAGE ================= */
 .center-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   max-width: 500px;
-  perspective: 1000px; /* For 3D effect */
+  perspective: 1000px;
 }
 
-/* ================= GREETING & CLOCK ================= */
-.greeting {
-  font-size: 16px;
-  color: var(--neon);
-  margin-bottom: 5px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-weight: 700;
-  text-shadow: 0 0 10px rgba(0, 255, 213, 0.4);
-}
-
+/* ================= CLOCK ================= */
 .clock-card {
   text-align: center;
   margin-bottom: 40px;
   cursor: grab;
-  transition: transform 0.1s;
+}
+
+.greeting {
+  font-size: 19px;
+  color: var(--neon);
+  margin-bottom: 5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  text-shadow: 0 0 15px rgba(0, 255, 213, 0.6);
 }
 
 #time {
@@ -134,17 +132,12 @@ body.static-bg {
   filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
 }
 
-#date {
-  font-size: 16px;
-  opacity: 0.8;
-  letter-spacing: 1px;
-}
+#date { font-size: 16px; opacity: 0.8; letter-spacing: 1px; }
 
-/* ================= ULTRA SEARCH BAR ================= */
+/* ================= SEARCH ================= */
 .search-wrapper {
   position: relative;
   width: 100%;
-  transition: transform 0.2s ease;
 }
 
 .search-box {
@@ -156,21 +149,15 @@ body.static-bg {
   padding: 18px 50px 18px 25px;
   color: #fff;
   font-size: 18px;
-  box-shadow: 
-    0 10px 40px rgba(0,0,0,0.4),
-    inset 0 0 0 1px rgba(255,255,255,0.1);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
   transition: all 0.3s ease;
 }
 
 .search-box:focus {
-  background: rgba(0, 0, 0, 0.8);
-  box-shadow: 
-    0 15px 50px rgba(0, 255, 213, 0.15),
-    inset 0 0 0 1px var(--neon);
-  transform: scale(1.02);
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 15px 50px rgba(0, 255, 213, 0.15), inset 0 0 0 1px var(--neon);
 }
 
-/* Voice Icon */
 .voice-icon {
   position: absolute;
   right: 20px;
@@ -179,9 +166,7 @@ body.static-bg {
   color: #aaa;
   cursor: pointer;
   font-size: 20px;
-  transition: 0.3s;
 }
-.voice-icon:hover { color: var(--neon); }
 .voice-icon.listening { color: #ff0055; animation: pulse 1s infinite; }
 
 @keyframes pulse {
@@ -190,7 +175,7 @@ body.static-bg {
   100% { transform: translateY(-50%) scale(1); }
 }
 
-/* ================= SPEED DIAL (QUICK LINKS) ================= */
+/* ================= SPEED DIAL ================= */
 .speed-dial {
   display: flex;
   gap: 20px;
@@ -209,35 +194,29 @@ body.static-bg {
   font-size: 22px;
   color: #fff;
   border: 1px solid var(--glass-border);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  cursor: pointer;
+  transition: all 0.3s;
   text-decoration: none;
 }
 
 .app-icon:hover {
   background: var(--neon);
   color: #000;
-  transform: translateY(-10px) scale(1.1);
-  box-shadow: 0 10px 20px rgba(0, 255, 213, 0.3);
+  transform: translateY(-5px);
 }
 
-/* ================= HIDDEN INPUT ================= */
 input[type="file"] { display: none; }
-
 </style>
 </head>
 
 <body>
 
-<video autoplay muted loop id="bg-video">
-  <source src="https://joy1.videvo.net/videvo_files/converted/2021_04/large_watermarked/210419_01_DyingLight_4k_023_preview.mp4" type="video/mp4">
-</video>
+<video autoplay muted loop playsinline id="bg-video"></video>
 
 <div class="container">
   
   <div class="top-bar">
     <div class="weather-badge" id="weather">
-      <i class="fas fa-cloud"></i> <span>Locating...</span>
+      <i class="fas fa-cloud"></i> <span>...</span>
     </div>
     <div class="settings-btn" id="settingsBtn" title="Change Wallpaper">
       <i class="fas fa-cog"></i>
@@ -247,165 +226,193 @@ input[type="file"] { display: none; }
   <div class="center-stage" id="tiltCard">
     
     <div class="clock-card draggable" id="clockBox">
-      <div class="greeting" id="greeting">WELCOME BACK</div>
+      <div class="greeting" id="greeting">WELCOME</div>
       <div id="time">00:00</div>
-      <div id="date">Loading Date...</div>
+      <div id="date">Loading...</div>
     </div>
 
     <div class="search-wrapper draggable" id="searchWrap">
-      <input type="text" id="searchInput" class="search-box" placeholder="Ask the universe..." autocomplete="off">
+      <input type="text" id="searchInput" class="search-box" placeholder="Search..." autocomplete="off">
       <i class="fas fa-microphone voice-icon" id="micBtn"></i>
     </div>
 
     <div class="speed-dial">
-      <a href="https://youtube.com" class="app-icon" title="YouTube"><i class="fab fa-youtube"></i></a>
-      <a href="https://instagram.com" class="app-icon" title="Instagram"><i class="fab fa-instagram"></i></a>
-      <a href="https://chat.openai.com" class="app-icon" title="AI"><i class="fas fa-robot"></i></a>
-      <a href="https://github.com" class="app-icon" title="GitHub"><i class="fab fa-github"></i></a>
+      <a href="https://youtube.com" class="app-icon"><i class="fab fa-youtube"></i></a>
+      <a href="https://instagram.com" class="app-icon"><i class="fab fa-instagram"></i></a>
+      <a href="https://chatgpt.com" class="app-icon"><i class="fas fa-robot"></i></a>
+      <a href="https://google.com" class="app-icon"><i class="fab fa-google"></i></a>
     </div>
 
   </div>
 
-  <div style="font-size: 12px; opacity: 0.5; margin-bottom: 10px;">SHISHUPAL OS v2.0</div>
-
+  <div style="font-size: 12px; opacity: 0.5; margin-bottom: 10px;">SHISHUPAL OS v3.0 (Hybrid)</div>
 </div>
 
 <input type="file" id="wallPicker" accept="image/*,video/*">
 
 <script>
-/* ================= 1. CLOCK & GREETING ================= */
-function updateTime() {
-  const now = new Date();
-  const hours = now.getHours();
-  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const dateStr = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
-  
-  document.getElementById('time').innerText = timeStr;
-  document.getElementById('date').innerText = dateStr;
-
-  // Smart Greeting
-  let greet = "HELLO";
-  if(hours < 12) greet = "GOOD MORNING, SHISHUPAL";
-  else if(hours < 18) greet = "GOOD AFTERNOON, SHISHUPAL";
-  else greet = "GOOD EVENING, SHISHUPAL";
-  
-  document.getElementById('greeting').innerText = greet;
-}
-setInterval(updateTime, 1000);
-updateTime();
-
-/* ================= 2. WEATHER (AUTO LOCATION) ================= */
-const API_KEY = "f1f5a371042922700734867c52f50526"; // Keep your key
-const weatherEl = document.getElementById('weather');
-
-function getLocWeather() {
-  if(navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(async position => {
-      const { latitude, longitude } = position.coords;
-      try {
-        const req = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`);
-        const data = await req.json();
-        weatherEl.innerHTML = `<i class="fas fa-sun"></i> <span>${Math.round(data.main.temp)}°C • ${data.name}</span>`;
-      } catch(e) {
-        weatherEl.innerHTML = `<i class="fas fa-times"></i> Offline`;
-      }
-    }, () => {
-      // Fallback if permission denied
-      weatherEl.innerHTML = `<i class="fas fa-map-marker-alt"></i> GPS Off`;
-    });
-  }
-}
-getLocWeather();
-
-/* ================= 3. VOICE SEARCH & TYPING ================= */
-const searchInput = document.getElementById('searchInput');
-const micBtn = document.getElementById('micBtn');
-
-// Handle Enter Key
-searchInput.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter') {
-    let val = searchInput.value;
-    if(val) window.location.href = `https://www.google.com/search?q=${encodeURIComponent(val)}`;
-  }
-});
-
-// Voice Logic (Web Speech API)
-if ('webkitSpeechRecognition' in window) {
-  const recognition = new webkitSpeechRecognition();
-  recognition.continuous = false;
-  recognition.lang = "en-US";
-
-  micBtn.onclick = () => {
-    recognition.start();
-    micBtn.classList.add('listening');
-  };
-
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    searchInput.value = transcript;
-    micBtn.classList.remove('listening');
-    // Auto search after 1 second
-    setTimeout(() => {
-       window.location.href = `https://www.google.com/search?q=${encodeURIComponent(transcript)}`;
-    }, 800);
-  };
-  
-  recognition.onend = () => micBtn.classList.remove('listening');
-} else {
-  micBtn.style.display = 'none'; // Hide if not supported
-}
-
-/* ================= 4. WALLPAPER ENGINE (VIDEO + IMG) ================= */
+/* ================= 1. HYBRID WALLPAPER ENGINE ================= */
 const wallPicker = document.getElementById('wallPicker');
 const bgVideo = document.getElementById('bg-video');
 const settingsBtn = document.getElementById('settingsBtn');
 
-settingsBtn.onclick = () => wallPicker.click();
-
-// Load Saved
-const savedWall = localStorage.getItem('ultraWall');
-const savedType = localStorage.getItem('ultraWallType'); // 'video' or 'image'
-
-if(savedWall) {
-  if(savedType === 'video') {
-    bgVideo.src = savedWall;
-    bgVideo.style.display = 'block';
-  } else {
-    bgVideo.style.display = 'none';
-    document.body.style.backgroundImage = `url(${savedWall})`;
-    document.body.classList.add('static-bg');
-  }
+/* 🔁 RESET TO DEFAULT */
+function resetToDefaultWall() {
+  bgVideo.pause();
+  bgVideo.removeAttribute("src");
+  bgVideo.load();
+  bgVideo.style.display = "none";
+  document.body.style.backgroundImage = 'url("wall.jpg")';
+  localStorage.removeItem("ultraWall");
+  localStorage.removeItem("ultraWallType");
 }
 
-wallPicker.onchange = (e) => {
+/* ⚙ SETTINGS CLICK */
+settingsBtn.onclick = () => wallPicker.click();
+
+/* 🔄 AUTO LOAD ON START */
+window.addEventListener("load", () => {
+  try {
+    const savedType = localStorage.getItem("ultraWallType");
+    const savedWall = localStorage.getItem("ultraWall");
+
+    if (savedWall) {
+      if (savedType === "video") {
+        document.body.style.backgroundImage = 'none';
+        bgVideo.src = savedWall;
+        bgVideo.style.display = "block";
+        bgVideo.play().catch(e => console.log("Autoplay policy restricted"));
+      } else if (savedType === "image") {
+        bgVideo.style.display = "none";
+        document.body.style.backgroundImage = `url(${savedWall})`;
+      }
+    } else {
+      resetToDefaultWall();
+    }
+  } catch (e) {
+    console.error(e);
+    resetToDefaultWall();
+  }
+});
+
+/* 📂 FILE PICKER LOGIC */
+wallPicker.onchange = e => {
   const file = e.target.files[0];
-  if(!file) return;
-  const url = URL.createObjectURL(file);
-  
-  if(file.type.startsWith('video/')) {
-    bgVideo.src = url;
-    bgVideo.style.display = 'block';
-    document.body.style.backgroundImage = 'none';
-    localStorage.setItem('ultraWallType', 'video');
-  } else {
-    bgVideo.style.display = 'none';
-    document.body.style.backgroundImage = `url(${url})`;
-    document.body.classList.add('static-bg');
-    // Convert image to base64 to save (simple method)
+  if (!file) return;
+
+  // === IMAGE HANDLING ===
+  if (file.type.startsWith("image/")) {
     const reader = new FileReader();
     reader.onload = () => {
-        localStorage.setItem('ultraWall', reader.result);
-        localStorage.setItem('ultraWallType', 'image');
-    }
+      try {
+        localStorage.setItem("ultraWall", reader.result);
+        localStorage.setItem("ultraWallType", "image");
+        document.body.style.backgroundImage = `url(${reader.result})`;
+        bgVideo.style.display = "none";
+      } catch (err) {
+        alert("Image too big! Using temporarily.");
+        document.body.style.backgroundImage = `url(${reader.result})`;
+      }
+    };
     reader.readAsDataURL(file);
-    return; // Exit here to wait for reader
   }
-  
-  // Note: Saving large video blobs to localStorage fails. 
-  // Ideally, use IndexedDB for videos, but for now we rely on browser cache or objectURL for session.
+
+  // === VIDEO HANDLING ===
+  else if (file.type.startsWith("video/")) {
+    // 1. Show Immediately (Temp Preview)
+    const tempUrl = URL.createObjectURL(file);
+    bgVideo.src = tempUrl;
+    bgVideo.style.display = "block";
+    bgVideo.play();
+    document.body.style.backgroundImage = 'none';
+
+    // 2. Check Size (Limit 3.5MB for storage safety)
+    if (file.size > 3.5 * 1024 * 1024) {
+      alert("⚠️ Video > 3.5MB. It will run temporarily (Not Saved).");
+      return; 
+    }
+
+    // 3. Check Duration
+    const videoChecker = document.createElement('video');
+    videoChecker.preload = 'metadata';
+    videoChecker.onloadedmetadata = function() {
+      window.URL.revokeObjectURL(videoChecker.src);
+      if (videoChecker.duration > 15) { 
+        alert("⚠️ Video > 15s. It will run temporarily.");
+      } else {
+        // 4. Save if small & short
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          try {
+            localStorage.setItem("ultraWall", reader.result);
+            localStorage.setItem("ultraWallType", "video");
+            alert("✅ Video Saved Permanently!");
+          } catch (err) {
+            alert("❌ Storage Full! Running temporary mode.");
+            localStorage.removeItem("ultraWall");
+          }
+        };
+      }
+    };
+    videoChecker.src = URL.createObjectURL(file);
+  }
 };
 
-/* ================= 5. 3D TILT EFFECT (MOUSE MOVE) ================= */
+/* ================= 2. CLOCK & GREETING ================= */
+function updateTime() {
+  const now = new Date();
+  const hours = now.getHours();
+  
+  document.getElementById('time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('date').innerText = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+
+  let greet = "HELLO SHISHUPAL";
+  if(hours < 12) greet = "SHRI RADHE";
+  else if(hours < 18) greet = "OM NAMAH SHIVAAY";
+  else greet = "MERE KRISHNA";
+  
+  document.getElementById('greeting').innerText = greet;
+}
+setInterval(updateTime, 1000); updateTime();
+
+/* ================= 3. WEATHER ================= */
+const weatherEl = document.getElementById('weather');
+if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(async position => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const req = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=f1f5a371042922700734867c52f50526`);
+        const data = await req.json();
+        weatherEl.innerHTML = `<i class="fas fa-sun"></i> <span>${Math.round(data.main.temp)}°C • ${data.name}</span>`;
+      } catch(e) { weatherEl.innerHTML = `<i class="fas fa-times"></i> Offline`; }
+    });
+}
+
+/* ================= 4. SEARCH & VOICE ================= */
+const searchInput = document.getElementById('searchInput');
+const micBtn = document.getElementById('micBtn');
+
+searchInput.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && searchInput.value) {
+    window.location.href = `https://www.google.com/search?q=${encodeURIComponent(searchInput.value)}`;
+  }
+});
+
+if ('webkitSpeechRecognition' in window) {
+  const recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  micBtn.onclick = () => { recognition.start(); micBtn.classList.add('listening'); };
+  recognition.onresult = (e) => {
+    const txt = e.results[0][0].transcript;
+    searchInput.value = txt;
+    micBtn.classList.remove('listening');
+    setTimeout(() => window.location.href = `https://www.google.com/search?q=${encodeURIComponent(txt)}`, 800);
+  };
+  recognition.onend = () => micBtn.classList.remove('listening');
+} else { micBtn.style.display = 'none'; }
+
+/* ================= 5. TILT & DRAG UI ================= */
 const card = document.getElementById('tiltCard');
 document.addEventListener('mousemove', (e) => {
   const x = (window.innerWidth / 2 - e.pageX) / 25;
@@ -413,51 +420,34 @@ document.addEventListener('mousemove', (e) => {
   card.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
 });
 
-/* ================= 6. DRAG LOGIC REFINED ================= */
-// Simple drag implementation
-function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  
-  // Double click/tap to enable drag mode visual
+function makeDrag(elmnt) {
+  let pos1=0, pos2=0, pos3=0, pos4=0;
   elmnt.ondblclick = function() {
       elmnt.style.cursor = "move";
       elmnt.style.border = "1px dashed var(--neon)";
       elmnt.onmousedown = dragMouseDown;
   };
-
   function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
+    e = e || window.event; e.preventDefault();
+    pos3 = e.clientX; pos4 = e.clientY;
     document.onmouseup = closeDragElement;
     document.onmousemove = elementDrag;
   }
-
   function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
+    e = e || window.event; e.preventDefault();
+    pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+    pos3 = e.clientX; pos4 = e.clientY;
     elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
     elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-    elmnt.style.position = "absolute"; // Switch to absolute on drag
+    elmnt.style.position = "absolute";
   }
-
   function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-    elmnt.style.border = "none";
-    elmnt.style.cursor = "grab";
+    document.onmouseup = null; document.onmousemove = null;
+    elmnt.style.border = "none"; elmnt.style.cursor = "grab";
   }
 }
-
-// Enable drag for specific elements
-dragElement(document.getElementById("clockBox"));
-dragElement(document.getElementById("searchWrap"));
-
+makeDrag(document.getElementById("clockBox"));
+makeDrag(document.getElementById("searchWrap"));
 </script>
 </body>
 </html>
