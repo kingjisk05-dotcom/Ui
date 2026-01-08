@@ -1,61 +1,99 @@
-/* ================= SETTINGS PANEL ADD-ON (FIXED) ================= */
+/* ========== FLOATING GLASS SETTINGS BOX ========== */
 
-const panel = document.createElement("div");
-panel.id = "settingsPanel";
-panel.innerHTML = `
-  <h3>⚙ Settings</h3>
-  <button id="resetWall">Reset Wallpaper</button>
-  <button id="toggleVideo">Toggle Video</button>
+const settingsBox = document.createElement("div");
+settingsBox.id = "floatingSettings";
+
+settingsBox.innerHTML = `
+  <div class="fs-title">⚙ Settings</div>
+  <button class="fs-btn" id="resetWall">Reset Wallpaper</button>
+  <button class="fs-btn" id="toggleVideo">Toggle Video</button>
 `;
 
-panel.style.cssText = `
+settingsBox.style.cssText = `
   position:fixed;
-  top:0;
-  right:-260px;
-  width:250px;
-  height:100%;
-  background:rgba(0,0,0,0.85);
-  backdrop-filter:blur(20px);
+  top:80px;
+  right:20px;
+  width:220px;
+  padding:18px;
+  border-radius:18px;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(25px);
+  -webkit-backdrop-filter:blur(25px);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:0 0 25px rgba(255,52,179,0.25);
   color:#fff;
-  padding:20px;
-  transition:0.4s ease;
-  z-index:9998;
+  z-index:9999;
+  opacity:0;
+  transform:scale(0.9);
+  pointer-events:none;
+  transition:0.35s ease;
 `;
 
-document.body.appendChild(panel);
+document.body.appendChild(settingsBox);
 
-let panelOpen = false;
+/* ===== INTERNAL STYLES ===== */
+const style = document.createElement("style");
+style.innerHTML = `
+  #floatingSettings .fs-title{
+    font-weight:700;
+    margin-bottom:12px;
+    color:var(--neon);
+    text-align:center;
+    letter-spacing:1px;
+  }
+  #floatingSettings .fs-btn{
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    border-radius:12px;
+    background:rgba(255,255,255,0.08);
+    color:#fff;
+    font-size:14px;
+    cursor:pointer;
+    transition:0.25s;
+  }
+  #floatingSettings .fs-btn:hover{
+    background:var(--neon);
+    color:#000;
+  }
+`;
+document.head.appendChild(style);
 
-/* ===== OPEN PANEL (ONLY FROM SETTINGS BUTTON) ===== */
+let open = false;
+
+/* ===== OPEN / CLOSE FROM SETTINGS ICON ===== */
 settingsBtn.addEventListener("click", (e) => {
-  e.stopPropagation(); // ⛔ outside click block
-  panelOpen = !panelOpen;
-  panel.style.right = panelOpen ? "0" : "-260px";
+  e.stopPropagation();
+  open = !open;
+
+  settingsBox.style.opacity = open ? "1" : "0";
+  settingsBox.style.transform = open ? "scale(1)" : "scale(0.9)";
+  settingsBox.style.pointerEvents = open ? "auto" : "none";
 });
 
-/* ===== PREVENT PANEL CLOSING WHEN CLICK INSIDE ===== */
-panel.addEventListener("click", (e) => {
-  e.stopPropagation(); // ⛔ very important
-});
+/* ===== CLICK INSIDE → STAY OPEN ===== */
+settingsBox.addEventListener("click", e => e.stopPropagation());
 
-/* ===== CLOSE ONLY WHEN CLICK OUTSIDE ===== */
+/* ===== CLICK OUTSIDE → CLOSE ===== */
 document.addEventListener("click", () => {
-  if (panelOpen) {
-    panelOpen = false;
-    panel.style.right = "-260px";
+  if(open){
+    open = false;
+    settingsBox.style.opacity = "0";
+    settingsBox.style.transform = "scale(0.9)";
+    settingsBox.style.pointerEvents = "none";
   }
 });
 
-/* ===== RESET WALL ===== */
+/* ===== BUTTON ACTIONS ===== */
 document.getElementById("resetWall").onclick = () => {
   localStorage.removeItem("ultraWall");
   localStorage.removeItem("ultraWallType");
   location.reload();
 };
 
-/* ===== VIDEO TOGGLE ===== */
 document.getElementById("toggleVideo").onclick = () => {
-  if (bgVideo.style.display === "none") {
+  if(bgVideo.style.display === "none"){
     bgVideo.style.display = "block";
     document.body.style.backgroundImage = "none";
   } else {
