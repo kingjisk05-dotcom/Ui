@@ -1,30 +1,29 @@
 /* ==================================================
-   ADVANCED FLOATING SETTINGS PANEL (FINAL + FIXED)
+   ADVANCED FLOATING SETTINGS PANEL (FINAL STABLE)
    - Persistent layout lock (refresh safe)
-   - Live video wallpaper thumbnail
-   - Image preview
+   - Drag system hard-linked
+   - Image + LIVE video wallpaper preview
+   - All buttons fully functional
    ================================================== */
 
 window.addEventListener("load", () => {
 
+  /* ===============================
+     CORE REFERENCES (SAFE)
+     =============================== */
   const settingsBtn = document.getElementById("settingsBtn");
-  const bgVideo = document.getElementById("bg-video");
-  const wallPicker = document.getElementById("wallPicker");
-
   if (!settingsBtn) return;
 
-  /* ==================================================
-     🔒 HARD SYNC LAYOUT LOCK ON LOAD (IMPORTANT FIX)
-     ================================================== */
-
+  /* ===============================
+     🔒 HARD SYNC LAYOUT LOCK ON LOAD
+     =============================== */
   const savedLock = localStorage.getItem("layoutLocked") === "true";
   window.__layoutLocked = savedLock;
   window.isDragLocked = () => window.__layoutLocked;
 
-  /* ==================================================
-     🧱 PANEL CREATE
-     ================================================== */
-
+  /* ===============================
+     🧱 CREATE FLOATING PANEL
+     =============================== */
   const panel = document.createElement("div");
   panel.id = "floatingSettings";
 
@@ -52,10 +51,9 @@ window.addEventListener("load", () => {
 
   document.body.appendChild(panel);
 
-  /* ==================================================
+  /* ===============================
      🎨 STYLES
-     ================================================== */
-
+     =============================== */
   const style = document.createElement("style");
   style.innerHTML = `
     #floatingSettings{
@@ -84,6 +82,15 @@ window.addEventListener("load", () => {
       pointer-events:auto;
     }
 
+    .fs-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-weight:700;
+      margin-bottom:10px;
+      color:var(--neon);
+    }
+
     .fs-thumb{
       width:100%;
       height:120px;
@@ -97,6 +104,13 @@ window.addEventListener("load", () => {
       width:100%;
       height:100%;
       object-fit:cover;
+    }
+
+    .fs-preview-text{
+      font-size:12px;
+      opacity:0.7;
+      margin-top:6px;
+      text-align:center;
     }
 
     .fs-btn{
@@ -117,17 +131,22 @@ window.addEventListener("load", () => {
       background:var(--neon);
       color:#000;
     }
+
+    .fs-close{
+      cursor:pointer;
+      opacity:0.7;
+    }
   `;
   document.head.appendChild(style);
 
-  /* ==================================================
-     🖼 LIVE WALLPAPER PREVIEW (IMAGE + VIDEO)
-     ================================================== */
-
+  /* ===============================
+     🖼 WALLPAPER PREVIEW (IMAGE + LIVE VIDEO)
+     =============================== */
   const thumb = panel.querySelector("#fsThumb");
 
   function updatePreview() {
     thumb.innerHTML = "";
+    thumb.style.backgroundImage = "";
 
     const type = localStorage.getItem("ultraWallType");
     const wall = localStorage.getItem("ultraWall");
@@ -153,10 +172,9 @@ window.addEventListener("load", () => {
 
   updatePreview();
 
-  /* ==================================================
-     🔒 LAYOUT LOCK (REFRESH SAFE)
-     ================================================== */
-
+  /* ===============================
+     🔒 LAYOUT LOCK (REAL & REFRESH SAFE)
+     =============================== */
   let locked = window.__layoutLocked;
   const lockBtn = panel.querySelector("#fsLayoutLock");
 
@@ -165,21 +183,49 @@ window.addEventListener("load", () => {
       ? "🔒 Layout Locked (Drag OFF)"
       : "🔓 Layout Unlocked (Drag ON)";
   }
-
   updateLockUI();
 
-  lockBtn.onclick = () => {
+  lockBtn.addEventListener("click", () => {
     locked = !locked;
     window.__layoutLocked = locked;
     localStorage.setItem("layoutLocked", locked);
     window.isDragLocked = () => locked;
     updateLockUI();
-  };
+  });
 
-  /* ==================================================
-     ⚙️ OPEN / CLOSE
-     ================================================== */
+  /* ===============================
+     ⚙️ ACTION BUTTONS (HARD SAFE)
+     =============================== */
 
+  // 🖼 Add Wallpaper
+  panel.querySelector("#fsAddWall").addEventListener("click", () => {
+    const picker = document.getElementById("wallPicker");
+    if (picker) picker.click();
+  });
+
+  // ♻ Reset Wallpaper
+  panel.querySelector("#fsResetWall").addEventListener("click", () => {
+    localStorage.removeItem("ultraWall");
+    localStorage.removeItem("ultraWallType");
+    location.reload();
+  });
+
+  // 🎥 Toggle Video
+  panel.querySelector("#fsToggleVideo").addEventListener("click", () => {
+    const video = document.getElementById("bg-video");
+    if (!video) return;
+
+    if (video.style.display === "none") {
+      video.style.display = "block";
+      document.body.style.backgroundImage = "none";
+    } else {
+      video.style.display = "none";
+    }
+  });
+
+  /* ===============================
+     OPEN / CLOSE LOGIC
+     =============================== */
   let open = false;
 
   function closePanel(){
@@ -194,7 +240,7 @@ window.addEventListener("load", () => {
     updatePreview();
   });
 
-  panel.querySelector(".fs-close").onclick = closePanel;
+  panel.querySelector(".fs-close").addEventListener("click", closePanel);
   panel.addEventListener("click", e => e.stopPropagation());
 
   document.addEventListener("click", () => {
