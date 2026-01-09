@@ -21,16 +21,7 @@ window.addEventListener("load", () => {
   const layoutBtn = document.createElement("button");
   layoutBtn.id = "layoutToggleBtn";
 
-  layoutBtn.style.cssText = `
-    width:100%;
-    padding:12px;
-    margin:10px 0;
-    border-radius:12px;
-    border:none;
-    background:#222;
-    color:#fff;
-    font-size:16px;
-  `;
+  layoutBtn.className = "panel-btn layout-btn";
 
   // 📍 Insert JUST AFTER "+ Add Wallpaper"
   addBtn.parentNode.insertBefore(layoutBtn, addBtn.nextSibling);
