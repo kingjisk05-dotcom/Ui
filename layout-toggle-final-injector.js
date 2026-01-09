@@ -4,6 +4,7 @@
    - Persistent layout lock
    - Drag-safe (no race condition)
    - UI sync on reload
+   - ⚙️ Settings icon → mini panel toggle
    ================================================== */
 
 /* ---------- EARLY GLOBAL STATE (BOOTSTRAP) ---------- */
@@ -19,7 +20,9 @@
 /* ---------- UI + TOGGLE INJECTOR ---------- */
 window.addEventListener("load", () => {
 
-  // 🔎 Find "+ Add Wallpaper" button
+  /* ===============================
+     🔎 FIND "+ Add Wallpaper" BUTTON
+     =============================== */
   const addBtn = [...document.querySelectorAll("button")]
     .find(b => b.textContent.trim().includes("Add Wallpaper"));
 
@@ -31,7 +34,9 @@ window.addEventListener("load", () => {
   // ❌ Prevent duplicate button
   if (document.getElementById("layoutToggleBtn")) return;
 
-  // 🔘 Create Layout Toggle Button
+  /* ===============================
+     🔘 CREATE LAYOUT TOGGLE BUTTON
+     =============================== */
   const layoutBtn = document.createElement("button");
   layoutBtn.id = "layoutToggleBtn";
   layoutBtn.className = "panel-btn layout-btn";
@@ -39,10 +44,14 @@ window.addEventListener("load", () => {
   // 📍 Insert after Add Wallpaper
   addBtn.parentNode.insertBefore(layoutBtn, addBtn.nextSibling);
 
-  /* ---------- LOCAL STATE (SYNCED) ---------- */
+  /* ===============================
+     🔒 LOCAL STATE (SYNCED)
+     =============================== */
   let locked = window.__layoutLocked;
 
-  /* ---------- UI UPDATE ---------- */
+  /* ===============================
+     🎨 UI UPDATE
+     =============================== */
   function updateUI() {
     layoutBtn.textContent = locked
       ? "🔒 Layout Locked"
@@ -52,7 +61,9 @@ window.addEventListener("load", () => {
     layoutBtn.classList.toggle("unlocked", !locked);
   }
 
-  /* ---------- TOGGLE HANDLER ---------- */
+  /* ===============================
+     🔁 TOGGLE HANDLER
+     =============================== */
   layoutBtn.addEventListener("click", () => {
     locked = !locked;
 
@@ -63,7 +74,29 @@ window.addEventListener("load", () => {
     updateUI();
   });
 
-  /* ---------- INITIAL SYNC ---------- */
+  /* ===============================
+     🚀 INITIAL SYNC
+     =============================== */
   updateUI();
+
+  /* ==================================================
+     ⚙️ SETTINGS ICON → MINI PANEL TOGGLE
+     ================================================== */
+
+  // ⚙️ icon (top-right)
+  const settingsBtn = document.getElementById("settingsBtn");
+
+  // 🎛️ mini wallpaper/settings panel
+  const panel =
+    document.getElementById("wallpaperPanel") ||
+    document.querySelector(".wallpaper-panel");
+
+  if (settingsBtn && panel) {
+    settingsBtn.addEventListener("click", () => {
+      panel.classList.toggle("open");
+    });
+  } else {
+    console.warn("Settings button or panel not found");
+  }
 
 });
