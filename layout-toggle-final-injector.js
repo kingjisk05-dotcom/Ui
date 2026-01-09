@@ -4,16 +4,16 @@
    - Persistent layout lock
    - Drag-safe (no race condition)
    - UI sync on reload
-   - ⚙️ Settings icon → mini panel toggle
+   - OS-style safe reload on UNLOCK
    ================================================== */
 
 /* ---------- EARLY GLOBAL STATE (BOOTSTRAP) ---------- */
 (function () {
-  // single source of truth (early)
+  // 🔒 single source of truth
   window.__layoutLocked =
     localStorage.getItem("layoutLocked") === "true";
 
-  // global reader (drag addon uses this)
+  // 🌍 global reader (used by drag addon)
   window.isDragLocked = () => window.__layoutLocked;
 })();
 
@@ -31,7 +31,7 @@ window.addEventListener("load", () => {
     return;
   }
 
-  // ❌ Prevent duplicate button
+  // ❌ prevent duplicate injection
   if (document.getElementById("layoutToggleBtn")) return;
 
   /* ===============================
@@ -41,7 +41,7 @@ window.addEventListener("load", () => {
   layoutBtn.id = "layoutToggleBtn";
   layoutBtn.className = "panel-btn layout-btn";
 
-  // 📍 Insert after Add Wallpaper
+  // 📍 insert just after "+ Add Wallpaper"
   addBtn.parentNode.insertBefore(layoutBtn, addBtn.nextSibling);
 
   /* ===============================
@@ -62,7 +62,7 @@ window.addEventListener("load", () => {
   }
 
   /* ===============================
-     🔁 TOGGLE HANDLER
+     🔁 TOGGLE HANDLER (MERGED)
      =============================== */
   layoutBtn.addEventListener("click", () => {
     locked = !locked;
@@ -72,9 +72,26 @@ window.addEventListener("load", () => {
     localStorage.setItem("layoutLocked", locked);
 
     updateUI();
+
+    // 🔔 notify other addons (drag, etc.)
+    document.dispatchEvent(
+      new CustomEvent("layout-lock-changed", {
+        detail: { locked }
+      })
+    );
+
+    // 🧠 OS-style safety:
+    // when UNLOCK → reload to reset drag listeners cleanly
+    if (!locked) {
+      setTimeout(() => {
+        location.reload();
+      }, 120);
+    }
   });
 
   /* ===============================
-     🚀 INITIAL SYNC
+     🚀 INITIAL UI SYNC
      =============================== */
   updateUI();
+
+});
