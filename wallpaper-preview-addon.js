@@ -1,6 +1,11 @@
 /* ==================================================
    WALLPAPER PREVIEW THUMBNAIL ADDON
    ================================================== */
+// ❌ agar preview already exist hai to dobara mat banao
+if (document.querySelector(".wallpaper-preview")) {
+  console.log("🧱 Wallpaper preview already exists, skipping addon");
+  return;
+}
 
 window.addEventListener("load", () => {
 
