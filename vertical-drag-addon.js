@@ -1,27 +1,40 @@
 /* ==================================================
-   VERTICAL DRAG ADDON (FINAL HARDENED)
-   - Sirf UP / DOWN movement
+   VERTICAL DRAG ADDON (FINAL – OS SAFE)
+   - Only UP / DOWN drag
    - X-axis locked
    - Layout lock respected (even after refresh)
    - Position save & restore
-   - Safe storage keys
+   - No race condition
+   - Single source of truth
    ================================================== */
 
 (function () {
 
-  /* ---------- SAFE LOCK READER ---------- */
+  /* ==================================================
+     🔒 GLOBAL LOCK READER (SAFE)
+     ================================================== */
   function isLocked() {
-    return window.isDragLocked && window.isDragLocked();
+    return !!(window.isDragLocked && window.isDragLocked());
   }
 
-  /* ---------- APPLY LOCK STATE ---------- */
+  /* ==================================================
+     🎯 APPLY LOCK STATE (HARD)
+     ================================================== */
   function applyLockState() {
-    document.querySelectorAll("[data-draggable]").forEach(el => {
-      el.style.pointerEvents = isLocked() ? "none" : "auto";
-      el.style.cursor = isLocked() ? "default" : "grab";
+    document.querySelectorAll("[data-vertical-drag]").forEach(el => {
+      if (isLocked()) {
+        el.style.pointerEvents = "none";
+        el.style.cursor = "default";
+      } else {
+        el.style.pointerEvents = "auto";
+        el.style.cursor = "grab";
+      }
     });
   }
 
+  /* ==================================================
+     🚀 INIT AFTER LOAD
+     ================================================== */
   window.addEventListener("load", () => {
 
     const elements = [
@@ -32,30 +45,37 @@
 
     elements.forEach(el => {
       if (!el) return;
-      el.dataset.draggable = "true";
+
+      // mark element (important)
+      el.dataset.verticalDrag = "true";
+
       enableVerticalDrag(el);
     });
 
-    // 🔒 apply lock on page load
+    // 🔒 enforce lock immediately (CRITICAL)
     applyLockState();
   });
 
-  /* ---------- SYNC WITH LAYOUT TOGGLE ---------- */
-  document.addEventListener("layout-lock-changed", e => {
+  /* ==================================================
+     🔁 LISTEN TO LAYOUT TOGGLE (SYNC)
+     ================================================== */
+  document.addEventListener("layout-lock-changed", () => {
     applyLockState();
   });
 
-  /* ---------- DRAG ENGINE ---------- */
+  /* ==================================================
+     🧲 DRAG ENGINE
+     ================================================== */
   function enableVerticalDrag(el) {
 
-    /* ===============================
-       📍 SAFE STORAGE KEY
-       =============================== */
-    const key = "drag_pos_" + (el.id || "anon_" + [...el.classList].join("_"));
+    /* ---------- UNIQUE & SAFE STORAGE KEY ---------- */
+    const key =
+      "vd_pos_" +
+      (el.id ||
+        "anon_" + [...el.classList].join("_") ||
+        Math.random().toString(36).slice(2));
 
-    /* ===============================
-       🔄 RESTORE POSITION
-       =============================== */
+    /* ---------- RESTORE POSITION ---------- */
     const savedTop = localStorage.getItem(key);
     if (savedTop !== null) {
       el.style.position = "absolute";
@@ -67,18 +87,19 @@
     let dragging = false;
 
     el.style.touchAction = "none";
+    el.style.cursor = "grab";
 
     el.addEventListener("mousedown", startDrag);
     el.addEventListener("touchstart", startDrag, { passive: false });
 
     function startDrag(e) {
 
-      /* 🔒 HARD LOCK CHECK */
+      /* 🔒 HARD BLOCK IF LOCKED */
       if (isLocked()) return;
 
       dragging = true;
-      el.style.cursor = "grabbing";
       el.style.position = "absolute";
+      el.style.cursor = "grabbing";
 
       startY = getY(e);
       startTop = el.offsetTop;
@@ -101,7 +122,7 @@
       if (!dragging) return;
 
       dragging = false;
-      el.style.cursor = "grab";
+      el.style.cursor = isLocked() ? "default" : "grab";
 
       /* 💾 SAVE POSITION */
       localStorage.setItem(key, el.offsetTop);
