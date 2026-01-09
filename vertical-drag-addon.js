@@ -1,33 +1,60 @@
 /* ==================================================
-   VERTICAL DRAG ADDON (FINAL FIXED)
+   VERTICAL DRAG ADDON (FINAL HARDENED)
    - Sirf UP / DOWN movement
    - X-axis locked
-   - Layout lock compatible
+   - Layout lock respected (even after refresh)
    - Position save & restore
+   - Safe storage keys
    ================================================== */
 
-window.addEventListener("load", () => {
+(function () {
 
-  const elements = [
-    document.getElementById("clockBox"),
-    document.getElementById("searchWrap"),
-    document.querySelector(".speed-dial")
-  ];
+  /* ---------- SAFE LOCK READER ---------- */
+  function isLocked() {
+    return window.isDragLocked && window.isDragLocked();
+  }
 
-  elements.forEach(el => {
-    if (!el) return;
-    enableVerticalDrag(el);
+  /* ---------- APPLY LOCK STATE ---------- */
+  function applyLockState() {
+    document.querySelectorAll("[data-draggable]").forEach(el => {
+      el.style.pointerEvents = isLocked() ? "none" : "auto";
+      el.style.cursor = isLocked() ? "default" : "grab";
+    });
+  }
+
+  window.addEventListener("load", () => {
+
+    const elements = [
+      document.getElementById("clockBox"),
+      document.getElementById("searchWrap"),
+      document.querySelector(".speed-dial")
+    ];
+
+    elements.forEach(el => {
+      if (!el) return;
+      el.dataset.draggable = "true";
+      enableVerticalDrag(el);
+    });
+
+    // 🔒 apply lock on page load
+    applyLockState();
   });
 
+  /* ---------- SYNC WITH LAYOUT TOGGLE ---------- */
+  document.addEventListener("layout-lock-changed", e => {
+    applyLockState();
+  });
+
+  /* ---------- DRAG ENGINE ---------- */
   function enableVerticalDrag(el) {
 
     /* ===============================
-       📍 UNIQUE STORAGE KEY
+       📍 SAFE STORAGE KEY
        =============================== */
-    const key = "drag_pos_" + (el.id || el.className);
+    const key = "drag_pos_" + (el.id || "anon_" + [...el.classList].join("_"));
 
     /* ===============================
-       🔄 RESTORE POSITION ON LOAD
+       🔄 RESTORE POSITION
        =============================== */
     const savedTop = localStorage.getItem(key);
     if (savedTop !== null) {
@@ -40,15 +67,14 @@ window.addEventListener("load", () => {
     let dragging = false;
 
     el.style.touchAction = "none";
-    el.style.cursor = "grab";
 
     el.addEventListener("mousedown", startDrag);
     el.addEventListener("touchstart", startDrag, { passive: false });
 
     function startDrag(e) {
 
-      /* 🔒 HARD LAYOUT LOCK CHECK */
-      if (window.isDragLocked && window.isDragLocked()) return;
+      /* 🔒 HARD LOCK CHECK */
+      if (isLocked()) return;
 
       dragging = true;
       el.style.cursor = "grabbing";
@@ -64,7 +90,7 @@ window.addEventListener("load", () => {
     }
 
     function onDrag(e) {
-      if (!dragging) return;
+      if (!dragging || isLocked()) return;
       e.preventDefault();
 
       const deltaY = getY(e) - startY;
@@ -77,7 +103,7 @@ window.addEventListener("load", () => {
       dragging = false;
       el.style.cursor = "grab";
 
-      /* 💾 SAVE POSITION ON DROP */
+      /* 💾 SAVE POSITION */
       localStorage.setItem(key, el.offsetTop);
 
       document.removeEventListener("mousemove", onDrag);
@@ -91,4 +117,4 @@ window.addEventListener("load", () => {
     }
   }
 
-});
+})();
