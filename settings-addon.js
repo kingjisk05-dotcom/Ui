@@ -135,12 +135,23 @@
     /* ==================================================
        ⚙️ BUTTON ACTIONS (SAFE)
        ================================================== */
-    panel.querySelector("#fsAddWall").addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const picker = document.getElementById("wallPicker");
-      if (picker) picker.click();
-    });
+    panel.querySelector("#fsAddWall").addEventListener("click", () => {
+  const picker = document.getElementById("wallPicker");
+  if (!picker) return;
+
+  // 1️⃣ Close control center first
+  open = false;
+  panel.classList.remove("open");
+
+  // 2️⃣ Remove focus / active elements
+  document.activeElement?.blur();
+
+  // 3️⃣ Small delay → let UI settle
+  setTimeout(() => {
+    picker.value = ""; // reset previous selection
+    picker.click();
+  }, 300);
+});
 
     panel.querySelector("#fsResetWall").addEventListener("click", () => {
       localStorage.removeItem("ultraWall");
