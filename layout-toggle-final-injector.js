@@ -78,25 +78,3 @@ window.addEventListener("load", () => {
      🚀 INITIAL SYNC
      =============================== */
   updateUI();
-
-  /* ==================================================
-     ⚙️ SETTINGS ICON → MINI PANEL TOGGLE
-     ================================================== */
-
-  // ⚙️ icon (top-right)
-  const settingsBtn = document.getElementById("settingsBtn");
-
-  // 🎛️ mini wallpaper/settings panel
-  const panel =
-    document.getElementById("wallpaperPanel") ||
-    document.querySelector(".wallpaper-panel");
-
-  if (settingsBtn && panel) {
-    settingsBtn.addEventListener("click", () => {
-      panel.classList.toggle("open");
-    });
-  } else {
-    console.warn("Settings button or panel not found");
-  }
-
-});
