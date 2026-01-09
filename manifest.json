@@ -1,20 +1,28 @@
 {
   "name": "Shishupal OS",
-  "short_name": "ShishupalOS",
-  "start_url": ".",
+  "short_name": "ShishuOS",
+  "id": "/?source=pwa",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
+  "orientation": "any",
   "background_color": "#000000",
   "theme_color": "#ff34b3",
+  "description": "Ultra-Stable Web Operating System",
+  "categories": ["productivity", "personalization"],
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
