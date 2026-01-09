@@ -1,5 +1,4 @@
 /* ========== FLOATING GLASS SETTINGS BOX ========== */
-return; // TEMP DISABLE SETTINGS PANEL
 
 const settingsBox = document.createElement("div");
 settingsBox.id = "floatingSettings";
