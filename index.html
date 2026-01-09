@@ -363,65 +363,17 @@ setInterval(updateTime, 1000); updateTime();
    Stable • Retry • Plugin Ready
    ================================================== */
 
-const weatherEl = document.getElementById("weather");
-
-/* ---------- PLUGIN HOOKS ---------- */
-const WeatherHooks = {
-  update: [],
-  fail: [],
-  ready: []
-};
-
-function notifyWeatherUpdate(data) {
-  WeatherHooks.update.forEach(fn => fn(data));
+const weatherEl = document.getElementById('weather');
+if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(async position => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const req = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=f1f5a371042922700734867c52f50526`);
+        const data = await req.json();
+        weatherEl.innerHTML = `<i class="fas fa-sun"></i> <span>${Math.round(data.main.temp)}°C • ${data.name}</span>`;
+      } catch(e) { weatherEl.innerHTML = `<i class="fas fa-times"></i> Offline`; }
+    });
 }
-
-function notifyWeatherFail(err) {
-  WeatherHooks.fail.forEach(fn => fn(err));
-}
-
-/* ---------- WEATHER RENDER ---------- */
-function renderWeather(data) {
-  weatherEl.innerHTML = `
-    <i class="fas fa-cloud"></i>
-    <span>${Math.round(data.main.temp)}°C • ${data.name}</span>
-  `;
-  notifyWeatherUpdate(data);
-}
-
-/* ---------- FETCH WEATHER ---------- */
-let weatherRetry = 0;
-const MAX_WEATHER_RETRY = 5;
-
-function fetchWeather() {
-  if (!navigator.geolocation) return;
-
-  navigator.geolocation.getCurrentPosition(async position => {
-    try {
-      const { latitude, longitude } = position.coords;
-
-      const req = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=f1f5a371042922700734867c52f50526`
-      );
-
-      const data = await req.json();
-      renderWeather(data);
-
-    } catch (e) {
-      handleWeatherFail(e);
-    }
-  }, handleWeatherFail);
-}
-
-/* ---------- FAIL & RETRY ---------- */
-function handleWeatherFail(err) {
-  if (weatherRetry >= MAX_WEATHER_RETRY) return;
-  weatherRetry++;
-  setTimeout(fetchWeather, 3000);
-}
-
-/* ---------- INIT ---------- */
-window.addEventListener("load", fetchWeather);
   
 /* ================= 4. SEARCH & VOICE ================= */  
 const searchInput = document.getElementById('searchInput');  
