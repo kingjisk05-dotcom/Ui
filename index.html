@@ -4,11 +4,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
 <title>Shishupal OS • Ultra Hybrid</title> 
   <link rel="manifest" href="manifest.json">
-<script src="pwa-addon.js"></script> 
+<script src="pwa-addon.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  <style>  
 /* ================= VARIABLES ================= */  
 :root {  
-  --neon: ​#ff34b3;  
+  --neon: #ff34b3;  
   --glass: rgba(255, 255, 255, 0.05);  
   --glass-border: rgba(255, 255, 255, 0.1);  
   --text: #ffffff;  
@@ -112,7 +112,7 @@ body {
 }  
   
 .greeting {  
-  font-size: 21px;  
+  font-size: 19px;  
   color: var(--neon);  
   margin-bottom: 5px;  
   letter-spacing: 2px;  
@@ -127,10 +127,10 @@ body {
   background: linear-gradient(to bottom, #fff, #aaa);  
   -webkit-background-clip: text;  
   -webkit-text-fill-color: transparent;  
-  filter: drop-shadow(0 0 22px rgba(255,255,255,0.2));  
+  filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));  
 }  
   
-#date { font-size: 19px; opacity: 1.0; letter-spacing: 1px; }  
+#date { font-size: 16px; opacity: 0.8; letter-spacing: 1px; }  
   
 /* ================= SEARCH ================= */  
 .search-wrapper {  
@@ -358,22 +358,17 @@ function updateTime() {
 setInterval(updateTime, 1000); updateTime();  
   
 /* ================= 3. WEATHER ================= */  
-/* ==================================================
-   WEATHER CORE ENGINE (MAIN)
-   Stable • Retry • Plugin Ready
-   ================================================== */
-
-const weatherEl = document.getElementById('weather');
-if(navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(async position => {
-      try {
-        const { latitude, longitude } = position.coords;
-        const req = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=f1f5a371042922700734867c52f50526`);
-        const data = await req.json();
-        weatherEl.innerHTML = `<i class="fas fa-sun"></i> <span>${Math.round(data.main.temp)}°C • ${data.name}</span>`;
-      } catch(e) { weatherEl.innerHTML = `<i class="fas fa-times"></i> Offline`; }
-    });
-}
+const weatherEl = document.getElementById('weather');  
+if(navigator.geolocation) {  
+    navigator.geolocation.getCurrentPosition(async position => {  
+      try {  
+        const { latitude, longitude } = position.coords;  
+        const req = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=f1f5a371042922700734867c52f50526`);  
+        const data = await req.json();  
+        weatherEl.innerHTML = `<i class="fas fa-sun"></i> <span>${Math.round(data.main.temp)}°C • ${data.name}</span>`;  
+      } catch(e) { weatherEl.innerHTML = `<i class="fas fa-times"></i> Offline`; }  
+    });  
+}  
   
 /* ================= 4. SEARCH & VOICE ================= */  
 const searchInput = document.getElementById('searchInput');  
@@ -448,6 +443,5 @@ makeDrag(document.getElementById("searchWrap"));
   <script src="wallpaper-preview-addon.js"></script>
   <script src="search-focus-ui-addon.js"></script>
   <script src="live-weather-addon.js"></script>
-  <script src="clock-neon-ui-addon.js"></script>
-</body>  
+</body> 
 </html>
