@@ -1,8 +1,9 @@
 /* ==================================================
-   VERTICAL DRAG ADDON
+   VERTICAL DRAG ADDON (FINAL FIXED)
    - Sirf UP / DOWN movement
    - X-axis locked
-   - Lock system compatible
+   - Layout lock compatible
+   - Position save & restore
    ================================================== */
 
 window.addEventListener("load", () => {
@@ -19,6 +20,21 @@ window.addEventListener("load", () => {
   });
 
   function enableVerticalDrag(el) {
+
+    /* ===============================
+       📍 UNIQUE STORAGE KEY
+       =============================== */
+    const key = "drag_pos_" + (el.id || el.className);
+
+    /* ===============================
+       🔄 RESTORE POSITION ON LOAD
+       =============================== */
+    const savedTop = localStorage.getItem(key);
+    if (savedTop !== null) {
+      el.style.position = "absolute";
+      el.style.top = savedTop + "px";
+    }
+
     let startY = 0;
     let startTop = 0;
     let dragging = false;
@@ -30,7 +46,8 @@ window.addEventListener("load", () => {
     el.addEventListener("touchstart", startDrag, { passive: false });
 
     function startDrag(e) {
-      /* 🔒 LAYOUT LOCK CHECK (MERGED HERE) */
+
+      /* 🔒 HARD LAYOUT LOCK CHECK */
       if (window.isDragLocked && window.isDragLocked()) return;
 
       dragging = true;
@@ -55,8 +72,13 @@ window.addEventListener("load", () => {
     }
 
     function stopDrag() {
+      if (!dragging) return;
+
       dragging = false;
       el.style.cursor = "grab";
+
+      /* 💾 SAVE POSITION ON DROP */
+      localStorage.setItem(key, el.offsetTop);
 
       document.removeEventListener("mousemove", onDrag);
       document.removeEventListener("touchmove", onDrag);
