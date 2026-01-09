@@ -1,135 +1,151 @@
 /* ==================================================
-   ULTRA UI THEME ADDON
-   - Matches the Settings Panel design
-   - Glassmorphism Search Bar & Glowing Clock
-   - Injects styles dynamically (No HTML edits needed)
+   iOS 17 STYLE ADDON (CLEAN & MINIMAL)
+   - Apple System Fonts (SF Pro)
+   - Lock Screen Layout (Date above Time)
+   - iOS App Icons (Squircles + Focus Effect)
    ================================================== */
 
 window.addEventListener("load", () => {
 
   /* ===============================
-     🎯 CONFIGURATION
-     (Match these IDs to your real HTML IDs)
+     🎯 TARGETS (Adjust selectors if needed)
      =============================== */
   const TARGETS = {
     clock: document.getElementById("clock") || document.querySelector(".clock"),
-    search: document.querySelector("input[type='text']") || document.getElementById("search"),
     greeting: document.getElementById("greeting") || document.querySelector("h1"),
-    container: document.querySelector(".container") || document.body
+    // Tries to find the container holding your app icons
+    appContainer: document.querySelector(".apps") || document.getElementById("links") || document.querySelector("div[style*='flex']"),
+    // Target specific app links/images
+    appIcons: document.querySelectorAll("a img, .app-icon") 
   };
 
   /* ===============================
-     🎨 INJECT ULTRA STYLES
+     🍎 INJECT iOS STYLES
      =============================== */
   const style = document.createElement("style");
   style.textContent = `
-    /* --- FONTS & ANIMATIONS --- */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap');
-
-    @keyframes floatUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* --- iOS FONT STACK --- */
+    :root {
+      --ios-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* --- CLOCK STYLES --- */
-    ${getTag(TARGETS.clock)} {
-      font-family: 'Inter', sans-serif !important;
-      font-size: 8rem !important;
-      font-weight: 800 !important;
-      color: #fff !important;
-      text-shadow: 0 0 30px rgba(0, 210, 255, 0.25) !important;
-      letter-spacing: -2px !important;
-      margin-bottom: 0 !important;
-      animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* --- LAYOUT CONTAINER (Centers everything) --- */
+    .ios-center-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin-top: 4vh;
     }
 
-    /* --- GREETING STYLES --- */
+    /* --- 1. GREETING (Like iOS Date) --- */
     ${getTag(TARGETS.greeting)} {
-      font-family: 'Inter', sans-serif !important;
-      font-size: 1.5rem !important;
-      font-weight: 300 !important;
-      color: rgba(255, 255, 255, 0.7) !important;
+      font-family: var(--ios-font) !important;
+      font-size: 22px !important;
+      font-weight: 500 !important;
+      color: rgba(255, 255, 255, 0.9) !important;
       text-transform: uppercase !important;
-      letter-spacing: 4px !important;
-      margin-top: -10px !important;
-      margin-bottom: 40px !important;
-      animation: floatUp 1s ease 0.2s backwards;
+      letter-spacing: 1px !important;
+      margin: 0 !important;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      order: 1; /* Puts greeting ABOVE clock */
     }
 
-    /* --- SEARCH BAR CONTAINER --- */
-    .ultra-search-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-      animation: floatUp 1.2s ease 0.3s backwards;
-    }
-
-    /* --- SEARCH INPUT STYLES --- */
-    ${getTag(TARGETS.search)} {
-      width: 100% !important;
-      padding: 18px 25px !important;
-      font-family: 'Inter', sans-serif !important;
-      font-size: 16px !important;
+    /* --- 2. CLOCK (Big & Bold) --- */
+    ${getTag(TARGETS.clock)} {
+      font-family: var(--ios-font) !important;
+      font-size: 6.5rem !important;
+      font-weight: 700 !important;
       color: #fff !important;
-      
-      /* Glassmorphism */
-      background: rgba(18, 18, 24, 0.65) !important;
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      border-radius: 50px !important;
-      
-      outline: none !important;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-      text-align: center !important;
+      letter-spacing: -3px !important;
+      line-height: 1 !important;
+      margin: 10px 0 30px 0 !important;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      order: 2;
     }
 
-    /* Placeholder Styling */
-    ${getTag(TARGETS.search)}::placeholder {
-      color: rgba(255, 255, 255, 0.3) !important;
-      letter-spacing: 1px;
+    /* --- 3. APP ICONS (Squircles) --- */
+    .ios-app-grid {
+      display: flex !important;
+      gap: 25px !important;
+      justify-content: center !important;
+      flex-wrap: wrap !important;
+      padding: 20px !important;
+      order: 3;
     }
 
-    /* --- SEARCH HOVER & FOCUS --- */
-    ${getTag(TARGETS.search)}:hover {
-      background: rgba(255, 255, 255, 0.05) !important;
-      border-color: rgba(255, 255, 255, 0.2) !important;
-      transform: translateY(-2px);
+    /* The Link (Wrapper) */
+    .ios-app-grid a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    ${getTag(TARGETS.search)}:focus {
-      background: rgba(18, 18, 24, 0.85) !important;
-      border-color: #00d2ff !important; /* Neon Accent */
-      box-shadow: 0 0 30px rgba(0, 210, 255, 0.25), inset 0 0 20px rgba(0, 210, 255, 0.05) !important;
-      width: 100% !important; /* Ensure it stays full width */
-      transform: scale(1.02);
+    .ios-app-grid a:hover {
+      transform: scale(1.15); /* iOS Focus Effect */
+      z-index: 10;
+    }
+
+    /* The Image (Icon) */
+    .ios-app-grid img {
+      width: 64px !important;
+      height: 64px !important;
+      object-fit: cover !important;
+      border-radius: 14px !important; /* The Squircle Shape */
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+    
+    /* Optional: App Label Text */
+    .ios-app-grid span {
+      margin-top: 8px;
+      font-family: var(--ios-font);
+      font-size: 12px;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      opacity: 0.9;
     }
   `;
   document.head.appendChild(style);
 
   /* ===============================
-     🧹 DOM CLEANUP & WRAPPER
-     (Centers the search bar perfectly)
+     📱 DOM REORDERING (Layout Fix)
      =============================== */
-  if (TARGETS.search) {
-    // Create a wrapper if it doesn't exist to center the floating bar
-    const parent = TARGETS.search.parentNode;
-    if (!parent.classList.contains("ultra-search-wrapper")) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "ultra-search-wrapper";
-      
-      // Move search input into wrapper
-      parent.insertBefore(wrapper, TARGETS.search);
-      wrapper.appendChild(TARGETS.search);
-    }
+  // 1. Find a wrapper to center clock/greeting
+  let mainWrapper = document.querySelector(".center-wrapper") || document.querySelector(".container");
+  
+  // If no main wrapper exists, create one to enforce layout
+  if (!mainWrapper && TARGETS.clock) {
+    mainWrapper = document.createElement("div");
+    mainWrapper.className = "ios-center-layout";
+    TARGETS.clock.parentNode.insertBefore(mainWrapper, TARGETS.clock);
+    
+    // Move elements into wrapper
+    if (TARGETS.greeting) mainWrapper.appendChild(TARGETS.greeting);
+    if (TARGETS.clock) mainWrapper.appendChild(TARGETS.clock);
+  } else if (mainWrapper) {
+    mainWrapper.classList.add("ios-center-layout");
   }
 
-  // Helper to get selector string safely
+  /* ===============================
+     📱 APP ICONS SETUP
+     =============================== */
+  if (TARGETS.appContainer) {
+    TARGETS.appContainer.classList.add("ios-app-grid");
+    
+    // Clean up existing styles on the container to let CSS take over
+    TARGETS.appContainer.style.width = "";
+    TARGETS.appContainer.style.maxWidth = "800px";
+  }
+
+  // Helper function
   function getTag(el) {
-    if (!el) return ".non-existent-element"; // Safe fallback
+    if (!el) return ".missing-element"; 
     return el.id ? "#" + el.id : el.tagName.toLowerCase();
   }
-
 });
