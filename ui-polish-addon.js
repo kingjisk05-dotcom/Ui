@@ -5,9 +5,7 @@
    FIX-3: Mini settings / wallpaper panel open-close
    ================================================== */
 
-/* ---------- FIX-1: FAKE STATUS BAR BLEND ---------- */
-const statusBlend = document.createElement("div");
-statusBlend.id = "statusBlend";
+
 
 statusBlend.style.cssText = `
   position:fixed;
