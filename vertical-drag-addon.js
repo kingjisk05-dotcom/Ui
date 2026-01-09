@@ -30,6 +30,7 @@ window.addEventListener("load", () => {
     el.addEventListener("touchstart", startDrag, { passive: false });
 
     function startDrag(e) {
+      /* 🔒 LAYOUT LOCK CHECK (MERGED HERE) */
       if (window.isDragLocked && window.isDragLocked()) return;
 
       dragging = true;
