@@ -5,7 +5,6 @@
 
 window.addEventListener("load", () => {
 
-  // 🔎 Find "+ Add Wallpaper" button
   const addBtn = [...document.querySelectorAll("button")]
     .find(b => b.textContent.trim().includes("Add Wallpaper"));
 
@@ -14,27 +13,25 @@ window.addEventListener("load", () => {
     return;
   }
 
-  // ❌ Already added check
   if (document.getElementById("layoutToggleBtn")) return;
 
-  // 🔘 Create Layout toggle button
   const layoutBtn = document.createElement("button");
   layoutBtn.id = "layoutToggleBtn";
-
   layoutBtn.className = "panel-btn layout-btn";
 
-  // 📍 Insert JUST AFTER "+ Add Wallpaper"
   addBtn.parentNode.insertBefore(layoutBtn, addBtn.nextSibling);
 
-  // 🔒 STATE
+  // 🔒 STATE (IMPORTANT)
   let locked = localStorage.getItem("layoutLocked") === "true";
 
   function updateUI() {
     layoutBtn.textContent = locked
       ? "🔒 Layout Locked"
       : "🔓 Layout Unlocked";
+
+    layoutBtn.classList.toggle("locked", locked);
+    layoutBtn.classList.toggle("unlocked", !locked);
   }
-  updateUI();
 
   // 🔁 Toggle
   layoutBtn.addEventListener("click", () => {
@@ -45,5 +42,8 @@ window.addEventListener("load", () => {
 
   // 🌍 Global hook (used by drag addon)
   window.isDragLocked = () => locked;
+
+  // 🚀 INITIAL UI SYNC
+  updateUI();
 
 });
