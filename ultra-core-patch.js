@@ -5,6 +5,7 @@
    - Memory Garbage Collector (Video Cleanup)
    - Touch Event Polyfill (Mobile Drag Stability)
    ================================================== */
+window.__NEW_CONTROL_CENTER__ = true;
 
 window.addEventListener("DOMContentLoaded", () => {
   console.log("🔰 Ultra Core Patch: Initializing Stability Engine...");
