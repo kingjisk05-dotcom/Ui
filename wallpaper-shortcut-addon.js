@@ -2,6 +2,8 @@
    WALLPAPER SHORTCUT ADDON
    - Move file picker to Settings panel
    ================================================== */
+// ❌ STOP OLD WALLPAPER SYSTEM
+if (window.__NEW_CONTROL_CENTER__) return;
 
 window.addEventListener("load", () => {
 
