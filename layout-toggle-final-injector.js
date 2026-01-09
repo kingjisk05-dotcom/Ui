@@ -1,10 +1,22 @@
 /* ==================================================
-   FINAL LAYOUT TOGGLE INJECTOR (MERGED & FIXED)
-   - Persistent lock state
-   - Global drag hook
+   FINAL LAYOUT TOGGLE INJECTOR (SINGLE SCRIPT)
+   - Early global lock state
+   - Persistent layout lock
+   - Drag-safe (no race condition)
    - UI sync on reload
    ================================================== */
 
+/* ---------- EARLY GLOBAL STATE (BOOTSTRAP) ---------- */
+(function () {
+  // single source of truth (early)
+  window.__layoutLocked =
+    localStorage.getItem("layoutLocked") === "true";
+
+  // global reader (drag addon uses this)
+  window.isDragLocked = () => window.__layoutLocked;
+})();
+
+/* ---------- UI + TOGGLE INJECTOR ---------- */
 window.addEventListener("load", () => {
 
   // 🔎 Find "+ Add Wallpaper" button
@@ -19,7 +31,7 @@ window.addEventListener("load", () => {
   // ❌ Prevent duplicate button
   if (document.getElementById("layoutToggleBtn")) return;
 
-  // 🔘 Create button
+  // 🔘 Create Layout Toggle Button
   const layoutBtn = document.createElement("button");
   layoutBtn.id = "layoutToggleBtn";
   layoutBtn.className = "panel-btn layout-btn";
@@ -27,18 +39,10 @@ window.addEventListener("load", () => {
   // 📍 Insert after Add Wallpaper
   addBtn.parentNode.insertBefore(layoutBtn, addBtn.nextSibling);
 
-  /* ===============================
-     🔒 SINGLE SOURCE OF TRUTH
-     =============================== */
+  /* ---------- LOCAL STATE (SYNCED) ---------- */
+  let locked = window.__layoutLocked;
 
-  let locked = localStorage.getItem("layoutLocked") === "true";
-
-  // 🌍 GLOBAL FUNCTION (drag addon reads this)
-  window.isDragLocked = () => locked;
-
-  /* ===============================
-     🎨 UI UPDATE
-     =============================== */
+  /* ---------- UI UPDATE ---------- */
   function updateUI() {
     layoutBtn.textContent = locked
       ? "🔒 Layout Locked"
@@ -48,18 +52,18 @@ window.addEventListener("load", () => {
     layoutBtn.classList.toggle("unlocked", !locked);
   }
 
-  /* ===============================
-     🔁 TOGGLE HANDLER
-     =============================== */
+  /* ---------- TOGGLE HANDLER ---------- */
   layoutBtn.addEventListener("click", () => {
     locked = !locked;
+
+    // 🔥 sync everywhere
+    window.__layoutLocked = locked;
     localStorage.setItem("layoutLocked", locked);
+
     updateUI();
   });
 
-  /* ===============================
-     🚀 INITIAL SYNC ON PAGE LOAD
-     =============================== */
+  /* ---------- INITIAL SYNC ---------- */
   updateUI();
 
 });
