@@ -1,31 +1,30 @@
 /* ==================================================
-   ADVANCED FLOATING SETTINGS PANEL (FINAL FIX)
-   - Wallpaper preview (image/video)
-   - Real layout lock (drag-safe)
-   - OS-style glass UI
+   ADVANCED FLOATING SETTINGS PANEL (FINAL + FIXED)
+   - Persistent layout lock (refresh safe)
+   - Live video wallpaper thumbnail
+   - Image preview
    ================================================== */
 
 window.addEventListener("load", () => {
 
-  /* ===============================
-     CORE REFERENCES
-     =============================== */
   const settingsBtn = document.getElementById("settingsBtn");
   const bgVideo = document.getElementById("bg-video");
   const wallPicker = document.getElementById("wallPicker");
 
   if (!settingsBtn) return;
 
-  /* ===============================
-     ENSURE GLOBAL LOCK HOOK
-     =============================== */
-  if (!window.isDragLocked) {
-    window.isDragLocked = () => window.__layoutLocked === true;
-  }
+  /* ==================================================
+     🔒 HARD SYNC LAYOUT LOCK ON LOAD (IMPORTANT FIX)
+     ================================================== */
 
-  /* ===============================
-     PANEL CREATE
-     =============================== */
+  const savedLock = localStorage.getItem("layoutLocked") === "true";
+  window.__layoutLocked = savedLock;
+  window.isDragLocked = () => window.__layoutLocked;
+
+  /* ==================================================
+     🧱 PANEL CREATE
+     ================================================== */
+
   const panel = document.createElement("div");
   panel.id = "floatingSettings";
 
@@ -53,9 +52,10 @@ window.addEventListener("load", () => {
 
   document.body.appendChild(panel);
 
-  /* ===============================
-     STYLES
-     =============================== */
+  /* ==================================================
+     🎨 STYLES
+     ================================================== */
+
   const style = document.createElement("style");
   style.innerHTML = `
     #floatingSettings{
@@ -84,32 +84,19 @@ window.addEventListener("load", () => {
       pointer-events:auto;
     }
 
-    .fs-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-weight:700;
-      margin-bottom:10px;
-      color:var(--neon);
-    }
-
-    .fs-preview{
-      margin:10px 0;
-      text-align:center;
-    }
-
     .fs-thumb{
       width:100%;
-      height:110px;
+      height:120px;
       border-radius:14px;
-      background:#111 center / cover no-repeat;
+      overflow:hidden;
+      background:#000;
       box-shadow:inset 0 0 0 1px rgba(255,255,255,0.12);
     }
 
-    .fs-preview-text{
-      font-size:12px;
-      opacity:0.7;
-      margin-top:6px;
+    .fs-thumb video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
     }
 
     .fs-btn{
@@ -130,20 +117,18 @@ window.addEventListener("load", () => {
       background:var(--neon);
       color:#000;
     }
-
-    .fs-close{
-      cursor:pointer;
-      opacity:0.7;
-    }
   `;
   document.head.appendChild(style);
 
-  /* ===============================
-     WALLPAPER PREVIEW LOGIC
-     =============================== */
+  /* ==================================================
+     🖼 LIVE WALLPAPER PREVIEW (IMAGE + VIDEO)
+     ================================================== */
+
   const thumb = panel.querySelector("#fsThumb");
 
   function updatePreview() {
+    thumb.innerHTML = "";
+
     const type = localStorage.getItem("ultraWallType");
     const wall = localStorage.getItem("ultraWall");
 
@@ -154,17 +139,25 @@ window.addEventListener("load", () => {
 
     if (type === "image") {
       thumb.style.backgroundImage = `url(${wall})`;
-    } else {
-      thumb.style.backgroundImage =
-        `linear-gradient(135deg, #ff34b3, #000)`;
+    } 
+    else if (type === "video") {
+      const v = document.createElement("video");
+      v.src = wall;
+      v.muted = true;
+      v.loop = true;
+      v.autoplay = true;
+      v.playsInline = true;
+      thumb.appendChild(v);
     }
   }
+
   updatePreview();
 
-  /* ===============================
-     REAL LAYOUT LOCK (FIXED)
-     =============================== */
-  let locked = window.__layoutLocked === true;
+  /* ==================================================
+     🔒 LAYOUT LOCK (REFRESH SAFE)
+     ================================================== */
+
+  let locked = window.__layoutLocked;
   const lockBtn = panel.querySelector("#fsLayoutLock");
 
   function updateLockUI(){
@@ -172,45 +165,21 @@ window.addEventListener("load", () => {
       ? "🔒 Layout Locked (Drag OFF)"
       : "🔓 Layout Unlocked (Drag ON)";
   }
+
   updateLockUI();
 
   lockBtn.onclick = () => {
     locked = !locked;
     window.__layoutLocked = locked;
     localStorage.setItem("layoutLocked", locked);
-
-    // 🔥 FORCE drag system to respect lock
     window.isDragLocked = () => locked;
-
     updateLockUI();
   };
 
-  /* ===============================
-     ACTION BUTTONS
-     =============================== */
-  panel.querySelector("#fsAddWall").onclick = () => {
-    if (wallPicker) wallPicker.click();
-  };
+  /* ==================================================
+     ⚙️ OPEN / CLOSE
+     ================================================== */
 
-  panel.querySelector("#fsResetWall").onclick = () => {
-    localStorage.removeItem("ultraWall");
-    localStorage.removeItem("ultraWallType");
-    location.reload();
-  };
-
-  panel.querySelector("#fsToggleVideo").onclick = () => {
-    if (!bgVideo) return;
-    if (bgVideo.style.display === "none") {
-      bgVideo.style.display = "block";
-      document.body.style.backgroundImage = "none";
-    } else {
-      bgVideo.style.display = "none";
-    }
-  };
-
-  /* ===============================
-     OPEN / CLOSE LOGIC
-     =============================== */
   let open = false;
 
   function closePanel(){
