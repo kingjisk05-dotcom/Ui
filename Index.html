@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Dashboard</title>
+
+<style>
+:root {
+    --neon: #00fff0;
+    --neon-pink: #ff2fdc;
+    --glass: rgba(0,0,0,0.45);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: white;
+    background: #000;
+    background-size: cover;
+    background-position: center;
+    transition: background 0.5s ease;
+}
+
+/* ===== BACKGROUND OVERLAY ===== */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(0,0,0,0.6),
+        rgba(0,0,0,0.2)
+    );
+    backdrop-filter: blur(6px);
+    z-index: -1;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.container {
+    max-width: 500px;
+    margin: auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+/* ===== TITLE ===== */
+h1 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    text-shadow:
+        0 0 10px var(--neon),
+        0 0 25px var(--neon);
+}
+
+/* ===== SEARCH ===== */
+.search {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 30px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: var(--glass);
+    color: white;
+    box-shadow:
+        0 0 12px rgba(0,255,240,0.5);
+}
+
+/* ===== LINKS ===== */
+.links {
+    margin-top: 35px;
+    display: grid;
+    gap: 14px;
+}
+
+.link-btn {
+    padding: 14px;
+    border-radius: 18px;
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    background: linear-gradient(
+        135deg,
+        rgba(0,255,240,0.25),
+        rgba(255,47,220,0.25)
+    );
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    box-shadow:
+        0 0 10px rgba(0,255,240,0.4),
+        inset 0 0 10px rgba(255,255,255,0.1);
+    transition: all 0.25s ease;
+}
+
+.link-btn:hover {
+    transform: scale(1.05);
+    box-shadow:
+        0 0 18px var(--neon),
+        0 0 30px var(--neon-pink);
+}
+
+/* ===== WALLPAPER PICKER ===== */
+.wallpaper-btn {
+    margin-top: 30px;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 25px;
+    background: transparent;
+    color: white;
+    border: 1px solid var(--neon);
+    cursor: pointer;
+    box-shadow: 0 0 12px var(--neon);
+    transition: 0.3s;
+}
+
+.wallpaper-btn:hover {
+    background: var(--neon);
+    color: black;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+/* ===== FOOTER TEXT ===== */
+.footer {
+    margin-top: 25px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>⚡ My Neon Hub</h1>
+
+    <input class="search"
+        placeholder="Search Google..."
+        onkeydown="if(event.key==='Enter') location.href='https://www.google.com/search?q='+this.value">
+
+    <div class="links">
+        <a class="link-btn" href="https://youtube.com">YouTube</a>
+        <a class="link-btn" href="https://google.com">Google</a>
+        <a class="link-btn" href="https://gmail.com">Gmail</a>
+        <a class="link-btn" href="https://twitter.com">Twitter</a>
+    </div>
+
+    <!-- WALLPAPER PICKER -->
+    <label class="wallpaper-btn">
+        🎨 Change Wallpaper
+        <input type="file" accept="image/*" id="picker">
+    </label>
+
+    <div class="footer">
+        Wallpaper saved locally • Per-user • No upload
+    </div>
+</div>
+
+<script>
+/* ===== LOAD SAVED WALLPAPER ===== */
+const savedBg = localStorage.getItem("neonWallpaper");
+if (savedBg) {
+    document.body.style.backgroundImage = `url(${savedBg})`;
+}
+
+/* ===== FILE PICKER HANDLER ===== */
+document.getElementById("picker").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        localStorage.setItem("neonWallpaper", reader.result);
+        document.body.style.backgroundImage = `url(${reader.result})`;
+    };
+    reader.readAsDataURL(file);
+});
+</script>
+
+</body>
+</html>
